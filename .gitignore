@@ -1,0 +1,22 @@
+#VIM
+*.swp
+#Output Files
+*.o
+*.old
+*.hex
+*.htm
+*.map
+*.plg
+*.tra
+*.bak
+*.sct
+*.lst
+*.lnp
+*.dep
+*.crf
+*.d
+*._ia
+*.axf
+*.uvopt
+#KDE
+.directory
