@@ -162,7 +162,7 @@
             <DriverSelection>4096</DriverSelection>
           </Flash1>
           <Flash2>BIN\UL2ARM.DLL</Flash2>
-          <Flash3>"LPC210x_ISP.EXE" ("#H" ^X $D COM1: 38400 1)</Flash3>
+          <Flash3>"FM.exe" (COM(1, 115200) DEVICE($D, 0.000000) HARDWARE(BOOTEXEC, 50, 100) ERASEUSED(#H, PROTECTISP) HEXFILE(#H, NOCHECKSUMS, NOFILL, PROTECTISP) VERIFY(#H, NOCHECKSUMS))</Flash3>
           <Flash4></Flash4>
         </Utilities>
         <TargetArmAds>
