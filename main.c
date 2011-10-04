@@ -34,22 +34,5 @@ int main(void)
 
    while(1)
    {
-   		int i;
-		int recv;
-   		
-
-		recv = CheckFrameReceived();
-			if( recv )
-			{
-				printf( "#Frame Recieved\n" );
-			}
-			else
-			{
-				printf( "#No Frame Recieved\n" );
-			}
-		for(i = 0; i < 1000000; ++i)
-		{
-			
-		}
    }
 }
