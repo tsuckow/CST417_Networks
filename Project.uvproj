@@ -396,14 +396,19 @@
           <GroupName>?</GroupName>
           <Files>
             <File>
-              <FileName>isr.c</FileName>
+              <FileName>isr.cpp</FileName>
               <FileType>1</FileType>
-              <FilePath>.\isr.c</FilePath>
+              <FilePath>.\isr.cpp</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>main.cpp</FileName>
               <FileType>1</FileType>
-              <FilePath>.\main.c</FilePath>
+              <FilePath>.\main.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>isr.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\isr.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -411,14 +416,14 @@
           <GroupName>Serial</GroupName>
           <Files>
             <File>
+              <FileName>Serial.cpp</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\serial\Serial.cpp</FilePath>
+            </File>
+            <File>
               <FileName>Retarget.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\serial\Retarget.c</FilePath>
-            </File>
-            <File>
-              <FileName>Serial.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\serial\Serial.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -426,9 +431,9 @@
           <GroupName>LCD</GroupName>
           <Files>
             <File>
-              <FileName>LCD_4bit.c</FileName>
+              <FileName>LCD_4bit.cpp</FileName>
               <FileType>1</FileType>
-              <FilePath>.\lcd\LCD_4bit.c</FilePath>
+              <FilePath>.\lcd\LCD_4bit.cpp</FilePath>
             </File>
             <File>
               <FileName>LCD.h</FileName>
@@ -441,9 +446,9 @@
           <GroupName>LED</GroupName>
           <Files>
             <File>
-              <FileName>led.c</FileName>
+              <FileName>led.cpp</FileName>
               <FileType>1</FileType>
-              <FilePath>.\LED\led.c</FilePath>
+              <FilePath>.\LED\led.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -451,9 +456,9 @@
           <GroupName>Timer</GroupName>
           <Files>
             <File>
-              <FileName>timer.c</FileName>
+              <FileName>timer.cpp</FileName>
               <FileType>1</FileType>
-              <FilePath>.\timer.c</FilePath>
+              <FilePath>.\timer.cpp</FilePath>
             </File>
             <File>
               <FileName>timer.h</FileName>
@@ -466,9 +471,9 @@
           <GroupName>Network</GroupName>
           <Files>
             <File>
-              <FileName>EMAC.c</FileName>
+              <FileName>EMAC.cpp</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Network\EMAC.c</FilePath>
+              <FilePath>.\Network\EMAC.cpp</FilePath>
             </File>
             <File>
               <FileName>EMAC.h</FileName>
@@ -476,14 +481,14 @@
               <FilePath>.\Network\EMAC.h</FilePath>
             </File>
             <File>
-              <FileName>ethernet.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\network\ethernet.c</FilePath>
-            </File>
-            <File>
               <FileName>ethernet.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\network\ethernet.h</FilePath>
+            </File>
+            <File>
+              <FileName>ethernet.cpp</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\network\ethernet.cpp</FilePath>
             </File>
           </Files>
         </Group>

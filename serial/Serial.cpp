@@ -42,20 +42,24 @@ void init_serial (void)  {               /* Initialize Serial Interface       */
   #endif
   UxFDR    = 0;                          /* Fractional divider not used       */
   UxLCR    = 0x83;                       /* 8 bits, no Parity, 1 Stop bit     */
-  UxDLL    = 78;                         /* 9600 Baud Rate @ 12.0 MHZ PCLK    */
+//UxDLL    = 78;                         /* 9600 Baud Rate @ 12.0 MHZ PCLK    */
+//UxDLL    = 39;                         /* 19200 Baud Rate @ 12.0 MHZ PCLK   */
+  UxDLL    = 13;                         /* 57600 Baud Rate @ 12.0 MHZ PCLK   */
   UxDLM    = 0;                          /* High divisor latch = 0            */
   UxLCR    = 0x03;                       /* DLAB = 0                          */
 }
 
 
 /* Implementation of putchar (also used by printf function to output data)    */
+extern "C"
+{
 int sendchar (int ch)  {                 /* Write character to Serial Port    */
 
   while (!(UxLSR & 0x20));
 
   return (UxTHR = ch);
 }
-
+}
 
 int getkey (void)  {                     /* Read character from Serial Port   */
 

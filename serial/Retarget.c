@@ -16,10 +16,11 @@
 
 extern int  sendchar(int ch);  /* in serial.c */
 
+struct __FILE { int handle;} ;
 
-struct __FILE { int handle; /* Add whatever you need here */ };
 FILE __stdout;
-
+FILE __stdin;
+FILE __stderr;
 
 int fputc(int ch, FILE *f) {
 int tmp = sendchar(ch);
@@ -27,12 +28,10 @@ if( ch == '\n' ) sendchar('\r');
   return (tmp);
 }
 
-
 int ferror(FILE *f) {
-  /* Your implementation of ferror */
+  
   return EOF;
 }
-
 
 void _ttywrch(int ch) {
   sendchar(ch);

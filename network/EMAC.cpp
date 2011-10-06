@@ -219,7 +219,7 @@ void Init_EMAC(void)
   tx_descr_init ();
 
   /* Receive Broadcast and Perfect Match Packets */
-  MAC_RXFILTERCTRL = RFC_BCAST_EN | RFC_PERFECT_EN;
+  MAC_RXFILTERCTRL = RFC_BCAST_EN | RFC_MCAST_EN | RFC_PERFECT_EN;
 
   /* Enable EMAC interrupts. */
   MAC_INTENABLE = INT_RX_DONE | INT_TX_DONE;
@@ -262,7 +262,7 @@ void CopyFromFrame_EMAC(void *Dest, unsigned short Size)
 {
   unsigned short * piDest;                       // Keil: Pointer added to correct expression
 
-  piDest = Dest;                                 // Keil: Line added
+  piDest = reinterpret_cast<unsigned short *>(Dest);                                 // Keil: Line added
   while (Size > 1) {
     *piDest++ = ReadFrame_EMAC();
     Size -= 2;
@@ -350,7 +350,7 @@ void CopyToFrame_EMAC(void *Source, unsigned int Size)
   unsigned short * piSource;
   unsigned int idx;
 
-  piSource = Source;
+  piSource = reinterpret_cast<unsigned short *>(Source);
   Size = (Size + 1) & 0xFFFE;    // round Size up to next even number
   while (Size > 0) {
     WriteFrame_EMAC(*piSource++);

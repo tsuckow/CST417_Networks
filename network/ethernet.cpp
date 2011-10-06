@@ -19,7 +19,25 @@ void ethernet_init(void)
 
 void printMAC( unsigned char * addr )
 {
-	printf( "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5] );
+	printf( "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X  :  ", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5] );
+
+	if( addr[0] & 0x01 )
+	{
+		printf(	"Multicast " );
+	}
+	else
+	{
+		printf(	"Unicast   " );
+	}
+
+	if( addr[0] & 0x02 )
+	{
+		printf(	"Local" );
+	}
+	else
+	{
+		printf(	"Global" );
+	}
 }
 
 void ethernet_interrupt_handler(void)
@@ -69,17 +87,34 @@ void ethernet_interrupt_handler(void)
 			printMAC( frame + ETH_SA_OFS );
 			printf("\n");
 
+			unsigned short type = (*(frame + ETH_TYPE_OFS) << 8) + *(frame + ETH_TYPE_OFS + 1);
 			if( *(frame + ETH_TYPE_OFS) >= 6 )
 			{
 				//Type
-				printf( "Type                    : 0x%0.2X%0.2X\n", *(frame + ETH_TYPE_OFS), *(frame + ETH_TYPE_OFS + 1) );
+				printf( "Type                    : 0x%0.4X ", type );
+
+				//What is the type?
+				switch(type)
+				{
+					case 0x0800:
+						printf( "(IPv4)"	 );
+						break;
+					case 0x0806:
+						printf( "(ARP)"	 );
+						break;
+					case 0x86DD:
+						printf( "(IPv6)"	 );
+						break;
+					default:
+						printf( "(Unknown)"	 );
+				}
+
+				printf( "\n" );
 			}
 			else
 			{
 				//Length
-				unsigned short len = *(frame + ETH_TYPE_OFS) << 16 + *(frame + ETH_TYPE_OFS + 1);
-				
-				printf( "Length                  : %d bytes\n", len );
+				printf( "Length                  : %d bytes\n", type );
 			}
 			
 			printf( "\n--- Ethernet Data ---\n" );
