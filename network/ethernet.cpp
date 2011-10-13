@@ -7,6 +7,7 @@
 
 unsigned char frame[ETH_MAX_FLEN];
 
+//! \brief Initilize the ethernet system
 void ethernet_init(void)
 {
 	Init_EMAC();
@@ -17,6 +18,7 @@ void ethernet_init(void)
   	VICIntEnable  = (1  << 21);
 }
 
+//! \brief Prints the mac address to stdout
 void printMAC( unsigned char * addr )
 {
 	printf( "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X  :  ", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5] );
@@ -40,6 +42,11 @@ void printMAC( unsigned char * addr )
 	}
 }
 
+//!
+//! \brief Ethernet Interrupt Handler
+//!
+//! \note There seem to be a lot of recieve errors but they don't appear to affect anything
+//!
 void ethernet_interrupt_handler(void)
 {
 	if( MAC_INTSTATUS & INT_RX_OVERRUN )
