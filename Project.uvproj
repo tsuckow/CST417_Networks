@@ -330,7 +330,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>3</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -339,7 +339,7 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>0</wLevel>
+            <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls></MiscControls>
@@ -425,6 +425,11 @@
               <FileType>1</FileType>
               <FilePath>.\serial\Retarget.c</FilePath>
             </File>
+            <File>
+              <FileName>serial.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\serial\serial.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -489,6 +494,81 @@
               <FileName>ethernet.cpp</FileName>
               <FileType>1</FileType>
               <FilePath>.\network\ethernet.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>SROS</GroupName>
+          <Files>
+            <File>
+              <FileName>mutexObject.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SROS\source\mutexObject.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SROS\source\rtos.c</FilePath>
+            </File>
+            <File>
+              <FileName>mailboxObjectAsm.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\SROS\source\mailboxObjectAsm.s</FilePath>
+            </File>
+            <File>
+              <FileName>mutexObjectAsm.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\SROS\source\mutexObjectAsm.s</FilePath>
+            </File>
+            <File>
+              <FileName>rtos.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROS\source\rtos.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtosAsm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROS\source\rtosAsm.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtosAsm.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\SROS\source\rtosAsm.s</FilePath>
+            </File>
+            <File>
+              <FileName>rtosImpl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROS\source\rtosImpl.h</FilePath>
+            </File>
+            <File>
+              <FileName>semaphoreObjectAsm.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\SROS\source\semaphoreObjectAsm.s</FilePath>
+            </File>
+            <File>
+              <FileName>typeDef.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROS\source\typeDef.h</FilePath>
+            </File>
+            <File>
+              <FileName>rwLock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SROS\source\rwLock.c</FilePath>
+            </File>
+            <File>
+              <FileName>rwLock.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROS\source\rwLock.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>SROS++</GroupName>
+          <Files>
+            <File>
+              <FileName>threadfactory.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\threadfactory.h</FilePath>
             </File>
           </Files>
         </Group>

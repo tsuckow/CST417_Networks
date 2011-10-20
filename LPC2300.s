@@ -72,7 +72,7 @@ Stack_Top
 ;//   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF>
 ;// </h>
 
-Heap_Size       EQU     0x00000000
+Heap_Size       EQU     0x00004000
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base
@@ -484,17 +484,17 @@ MEMMAP          EQU     0xE01FC040      ; Memory Mapping Control
                 SUB     R0, R0, #SVC_Stack_Size
 
  ; Enter User Mode and set its Stack Pointer
-                MSR     CPSR_c, #Mode_USR
-                IF      :DEF:__MICROLIB
-
-                EXPORT __initial_sp
-
-                ELSE
-
-                MOV     SP, R0
-                SUB     SL, SP, #USR_Stack_Size
-
-                ENDIF
+ ;               MSR     CPSR_c, #Mode_USR
+ ;               IF      :DEF:__MICROLIB
+ ;
+ ;               EXPORT __initial_sp
+ ;
+ ;               ELSE
+ ;
+ ;               MOV     SP, R0
+ ;               SUB     SL, SP, #USR_Stack_Size
+ ;
+ ;               ENDIF
 
 
 ; Enter the C code

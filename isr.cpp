@@ -3,7 +3,7 @@
 #include "led/led.h"
 #include "network/ethernet.h"
 
-__irq void irq_interrupt_service_routine(void)
+void irq_interrupt_service_routine(void)
 {
 	static int ledval = 0;
 	if( T0IR & 0x01 ) //If Timer 0 Match

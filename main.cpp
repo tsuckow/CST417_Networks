@@ -3,11 +3,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <rtos.h>
+#include <rwLock.h>
+
 #include <led/led.h>
 #include <serial/serial.h>
 #include <lcd/lcd.h>
 #include "timer.h"
 #include "network/ethernet.h"
+
+#include "SROSpp/threadfactory.h"
+#include "SROSpp/mailbox.h"
+
+ThreadFactory threadfactory;
+Mailbox<uint32_t> box(2);
+
+void functionLowThread();
 
 int main(void)
 {
@@ -24,15 +35,24 @@ int main(void)
   set_cursor (0, 1);
   lcd_print (">>>>>>>><<<<<<<<");
 
-   srand(1);
 
-   printf("#Init Timer\n");
+   rtosInit();
+   printf("SROS Init Complete\n");
+
+   srand(1);
    timer_init();
    
-   printf("#Init Network\n");
+   printf("#Init Network (This may take a while)\n");
    ethernet_init();
 
-   while(1)
-   {
-   }
+   threadfactory.spawnThread(1000,30,functionLowThread);
+
+   scheduler();            //This function will never return.
 }
+
+void functionLowThread()
+{
+   printf("Low Priority\n");
+   while(1);
+}
+

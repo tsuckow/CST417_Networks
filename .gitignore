@@ -1,5 +1,7 @@
 #VIM
 *.swp
+#Windows
+Thumbs.db
 #Output Files
 *.o
 *.old
