@@ -2,6 +2,8 @@
 #include "isr.h"
 #include "led/led.h"
 #include "network/ethernet.h"
+#include <stdio.h>
+#include <rtos.h>
 
 void irq_interrupt_service_routine(void)
 {
@@ -9,7 +11,10 @@ void irq_interrupt_service_routine(void)
 	if( T0IR & 0x01 ) //If Timer 0 Match
 	{
 		LED_Out(ledval++);	
+		timerTick();//Tell SROS about the timer tick.
+
 		T0IR = 1;//Reset Interrupt
+		
 	}
 
 	if( MAC_INTSTATUS )
