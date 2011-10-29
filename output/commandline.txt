@@ -1,0 +1,6 @@
+COM(1, 115200)
+DEVICE(LPC2378, 0.000000)
+HARDWARE(BOOTEXEC, 50, 100)
+ERASEUSED(Z:\Classes\Networks\Labs\output\Project.hex, PROTECTISP)
+HEXFILE(Z:\Classes\Networks\Labs\output\Project.hex, NOCHECKSUMS, NOFILL, PROTECTISP)
+VERIFY(Z:\Classes\Networks\Labs\output\Project.hex, NOCHECKSUMS)
