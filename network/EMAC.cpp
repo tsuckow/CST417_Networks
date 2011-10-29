@@ -222,7 +222,7 @@ void Init_EMAC(void)
   MAC_RXFILTERCTRL = RFC_BCAST_EN | RFC_MCAST_EN | RFC_PERFECT_EN;
 
   /* Enable EMAC interrupts. */
-  MAC_INTENABLE = INT_RX_DONE | INT_TX_DONE;
+  MAC_INTENABLE = 0x0F;//INT_RX_DONE | INT_TX_DONE | INT_RX_OVERRUN;
 
   /* Reset all interrupts */
   MAC_INTCLEAR  = 0xFFFF;
@@ -239,19 +239,6 @@ unsigned short ReadFrame_EMAC(void)
 {
   return (*rptr++);
 }
-
-// reads a word in big-endian byte order from RX_FRAME_PORT
-// (useful to avoid permanent byte-swapping while reading
-// TCP/IP-data)
-
-unsigned short ReadFrameBE_EMAC(void)
-{
-  unsigned short ReturnValue;
-
-  ReturnValue = SwapBytes (*rptr++);
-  return (ReturnValue);
-}
-
 
 // copies bytes from frame port to MCU-memory
 // NOTES: * an odd number of byte may only be transfered
@@ -360,9 +347,4 @@ void CopyToFrame_EMAC(void *Source, unsigned int Size)
   idx = MAC_TXPRODUCEINDEX;
   if (++idx == NUM_TX_FRAG) idx = 0;
   MAC_TXPRODUCEINDEX = idx;
-}
-
-unsigned short SwapBytes(unsigned short Data)
-{
-  return (Data >> 8) | (Data << 8);
 }

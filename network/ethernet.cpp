@@ -1,11 +1,16 @@
-#include "ethernet.h"
-#include "EMAC.h"
-#include "isr.h"
+#include <SROSpp/ethernet.hpp>
+#include <SROSpp/mailbox.hpp>
 #include <LPC23xx.h>
 
 #include <stdio.h>
+#include <stdint.h>
 
-unsigned char frame[ETH_MAX_FLEN];
+Mailbox<EthernetFrame> eth_incoming(4);
+
+static uint8_t framebuffer[ETH_MAX_FLEN];
+static uint8_t frame[sizeof(EthernetFrame)];
+
+extern "C" void irq_interrupt_handler(void);
 
 //! \brief Initilize the ethernet system
 void ethernet_init(void)
@@ -13,7 +18,7 @@ void ethernet_init(void)
 	Init_EMAC();
 
 	//Interrupt
-	VICVectAddr21  = (unsigned long)irq_interrupt_service_routine;
+	VICVectAddr21  = (unsigned long)irq_interrupt_handler;
   	VICVectPriority21  = 15;
   	VICIntEnable  = (1  << 21);
 }
@@ -58,83 +63,45 @@ void ethernet_interrupt_handler(void)
 	if( MAC_INTSTATUS & INT_RX_ERR )
 	{
 		MAC_INTCLEAR = INT_RX_ERR;
-		printf( "ETH ERR: RX Error\n" );
+		//This is normal because of packets with type field
+		//printf( "ETH ERR: RX Error\n" );
 	}
 	
 	if( MAC_INTSTATUS & INT_RX_FIN ) //RX Finished Process Descriptors
 	{
 		MAC_INTCLEAR = INT_RX_FIN;
-		printf( "ETH: RX FIN\n" );
+		//Printing doesn't help the cause.
+		//printf( "ETH: RX FIN, About to drop packet.\n" );
 	}
 	
 	if( MAC_INTSTATUS & INT_RX_DONE )
 	{
 		MAC_INTCLEAR = INT_RX_DONE;
-		
+
 		while( CheckFrameReceived() )
 		{
 			unsigned short len;
 			unsigned short i;
-			printf( "\n--- Ethernet Frame header ---\n" );
 			
 			len = StartReadFrame();
-			
+
 			if( len > ETH_MAX_FLEN )
+			{
+				printf( "!!!TOO BIG" );
 				len = ETH_MAX_FLEN;
+			}
 			
-			CopyFromFrame_EMAC(frame,len);
+			CopyFromFrame_EMAC(framebuffer,len);
 			
 			EndReadFrame();
-			
-			printf( "Destination Address     : " );
-			printMAC( frame + ETH_DA_OFS );
-			printf( "\n" );
-			
-			printf( "Source Address          : " );
-			printMAC( frame + ETH_SA_OFS );
-			printf("\n");
 
-			unsigned short type = (*(frame + ETH_TYPE_OFS) << 8) + *(frame + ETH_TYPE_OFS + 1);
-			if( *(frame + ETH_TYPE_OFS) >= 6 )
-			{
-				//Type
-				printf( "Type                    : 0x%0.4X ", type );
+			EthernetFrame * myframe = new(&frame) EthernetFrame( framebuffer, len );
 
-				//What is the type?
-				switch(type)
-				{
-					case 0x0800:
-						printf( "(IPv4)"	 );
-						break;
-					case 0x0806:
-						printf( "(ARP)"	 );
-						break;
-					case 0x86DD:
-						printf( "(IPv6)"	 );
-						break;
-					default:
-						printf( "(Unknown)"	 );
-				}
-
-				printf( "\n" );
-			}
-			else
+			if( !eth_incoming.send( 0, myframe ) )
 			{
-				//Length
-				printf( "Length                  : %d bytes\n", type );
+				myframe->~EthernetFrame();
+				 printf("INT: Incoming packet dropped. Buffer full.\n");	
 			}
-			
-			printf( "\n--- Ethernet Data ---\n" );
-			for( i = ETH_HEADER_SIZE; i < len; ++i )
-			{
-				if( i != ETH_HEADER_SIZE && (i - ETH_HEADER_SIZE) % 24 == 0 )
-				{
-					printf( "\n" );
-				}
-				
-				printf( "%0.2x ", frame[i] );
-			}
-			printf( "\n" );
 		}
 	}
 	

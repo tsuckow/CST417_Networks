@@ -9,17 +9,26 @@
 
 #ifndef __EMAC_H
 #define __EMAC_H
-
-#define MYMAC_1         0x1E            /* our ethernet (MAC) address        */
-#define MYMAC_2         0x30            /* (MUST be unique in LAN!)          */
+										/* our ethernet (MAC) address        */
+										/* (MUST be unique in LAN!)          */
+/*
+#define MYMAC_1         0x1E            
+#define MYMAC_2         0x30
 #define MYMAC_3         0x6c
 #define MYMAC_4         0xa2
 #define MYMAC_5         0x45
 #define MYMAC_6         0x5e
+  */
+#define MYMAC_1         0x00          
+#define MYMAC_2         0x13
+#define MYMAC_3         0x20
+#define MYMAC_4         0xcb
+#define MYMAC_5         0xce
+#define MYMAC_6         0x99
 
 /* EMAC Memory Buffer configuration for 16K Ethernet RAM. */
-#define NUM_RX_FRAG         4           /* Num.of RX Fragments 4*1536= 6.0kB */
-#define NUM_TX_FRAG         3           /* Num.of TX Fragments 3*1536= 4.6kB */
+#define NUM_RX_FRAG         8           /* Num.of RX Fragments 4*1536= 6.0kB */
+#define NUM_TX_FRAG         2           /* Num.of TX Fragments 3*1536= 4.6kB */
 #define ETH_FRAG_SIZE       1536        /* Packet Fragment size 1536 Bytes   */
 
 #define ETH_MAX_FLEN        1536        /* Max. Ethernet Frame Size          */

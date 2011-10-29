@@ -566,9 +566,19 @@
           <GroupName>SROS++</GroupName>
           <Files>
             <File>
-              <FileName>threadfactory.h</FileName>
+              <FileName>ethernet.hpp</FileName>
               <FileType>5</FileType>
-              <FilePath>.\SROSpp\threadfactory.h</FilePath>
+              <FilePath>.\SROSpp\ethernet.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>mailbox.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\mailbox.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>threadfactory.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\threadfactory.hpp</FilePath>
             </File>
           </Files>
         </Group>
