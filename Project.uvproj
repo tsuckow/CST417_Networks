@@ -476,24 +476,14 @@
           <GroupName>Network</GroupName>
           <Files>
             <File>
-              <FileName>EMAC.cpp</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Network\EMAC.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>EMAC.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Network\EMAC.h</FilePath>
-            </File>
-            <File>
               <FileName>ethernet.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\network\ethernet.h</FilePath>
             </File>
             <File>
-              <FileName>ethernet.cpp</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\network\ethernet.cpp</FilePath>
+              <FileName>EMAC.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\network\EMAC.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -579,6 +569,11 @@
               <FileName>threadfactory.hpp</FileName>
               <FileType>5</FileType>
               <FilePath>.\SROSpp\threadfactory.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>semaphore.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\semaphore.hpp</FilePath>
             </File>
           </Files>
         </Group>

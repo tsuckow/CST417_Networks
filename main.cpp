@@ -15,6 +15,9 @@
 #include "SROSpp/mailbox.hpp"
 #include "SROSpp/ethernet.hpp"
 
+#include "isr.h"
+#include "SROSpp/ethernet_driver_lpc23xx.hpp"
+
 //http://www.keil.com/support/man/docs/armlib/armlib_Chdfjddj.htm
 
 ThreadFactory threadfactory;
@@ -23,6 +26,8 @@ struct Test
 	uint32_t a;
 	uint32_t b;	
 };
+
+Mailbox<EthernetFrame> eth_incoming(4);
 Mailbox<Test> box(2);
 
 void threadA( Mailbox<Test> * box );
@@ -30,6 +35,8 @@ void threadB( Mailbox<Test> * box );
 
 void ethernetSender();
 void ethernetReceiver( Mailbox<EthernetFrame> * eth_incoming );
+
+Ethernet_Driver * eth0 = new Ethernet_Driver_LPC23xx();
 
 int main(void)
 {
@@ -52,9 +59,6 @@ int main(void)
 
    srand(1);
    timer_init();
-   
-   printf("#Init Network (This may take a while)\n");
-   ethernet_init();
 
    //System threads
    threadfactory.spawnThread(ETH_MAX_FLEN+1000, 1,ethernetReceiver,&eth_incoming);
@@ -62,6 +66,8 @@ int main(void)
    //threadfactory.spawnThread(1000,30,threadA,&box);
    //threadfactory.spawnThread(1000,30,threadB,&box);
 
+   eth0->install( irq_interrupt_handler );
+   irqs.add( eth0 );
 
    printf("#Starting Scheduler\n");
    scheduler();            //This function will never return.
@@ -94,14 +100,59 @@ void threadB( Mailbox<Test> * box )
 
 void ethernetReceiver( Mailbox<EthernetFrame> * eth_incoming )
 {
-	uint8_t frame_buffer[sizeof(EthernetFrame)];
-	EthernetFrame * frame( reinterpret_cast<EthernetFrame *>(frame_buffer) );
-
+	eth0->init();
+	
 	while(true)
-	{	
-		if( eth_incoming->recv( -1, frame ) )
+	{
+		eth0->recv_wait( -1 );//Wait forever
+		
+		while( eth0->isFrameAvailable() )
 		{
-   			printf( "--- Ethernet Frame header ---\n" );
+			//This could be more OO so the end happens out of scope,
+			//but it gets more interesting to enforce reading safely.
+			unsigned short framesize = eth0->beginReadFrame();
+			{
+				uint8_t * framedata = eth0->readFramePointer();
+				
+				EthernetFrame frame( framedata, framesize );
+				
+				printf( "--- Ethernet Frame header ---\n" );
+				
+				unsigned short type = frame.getEtherType();
+				if( type >= 0x0600 )
+				{
+					//Type
+					printf( "Type                    : 0x%0.4X ", type );
+	
+					//What is the type?
+					switch(type)
+					{
+	
+						case 0x0800:
+							printf( "(IPv4)"	 );
+							break;
+						case 0x0806:
+							printf( "(ARP)"	 );
+							break;
+						case 0x86DD:
+							printf( "(IPv6)"	 );
+							break;
+						default:
+							printf( "(Unknown)"	 );
+					}
+	
+					printf( "\n" );
+				}
+				else
+				{
+					//Length
+					printf( "Length                  : %d bytes\n", type );
+				}
+			}
+			eth0->endReadFrame();
+		}
+	}
+#if 0
 	/*		 
 			printf( "Destination Address     : " );
 			printMAC( framebuffer + ETH_DA_OFS );
@@ -110,37 +161,8 @@ void ethernetReceiver( Mailbox<EthernetFrame> * eth_incoming )
 			printf( "Source Address          : " );
 			printMAC( framebuffer + ETH_SA_OFS );
 			printf("\n");
-   *//*
-			unsigned short type = frame->getEtherType();//(*(framebuffer + ETH_TYPE_OFS) << 8) + *(framebuffer + ETH_TYPE_OFS + 1);
-			if( type >= 0x0600 )
-			{
-				//Type
-				printf( "Type                    : 0x%0.4X ", type );
-
-				//What is the type?
-				switch(type)
-				{
-
-					case 0x0800:
-						printf( "(IPv4)"	 );
-						break;
-					case 0x0806:
-						printf( "(ARP)"	 );
-						break;
-					case 0x86DD:
-						printf( "(IPv6)"	 );
-						break;
-					default:
-						printf( "(Unknown)"	 );
-				}
-
-				printf( "\n" );
-			}
-			else
-			{
-				//Length
-				printf( "Length                  : %d bytes\n", type );
-			}*/
+   */
+			
  	/*
 			printf( "\n--- Ethernet Data ---\n" );
 			for( i = ETH_HEADER_SIZE; i < len; ++i )
@@ -153,14 +175,5 @@ void ethernetReceiver( Mailbox<EthernetFrame> * eth_incoming )
 				printf( "%0.2x ", frame[i] );
 			}
 			   */
-
-			frame->~EthernetFrame();
-		}
-		else
-		{
-			printf("! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-			printf("INTERNAL ERROR! Failed to recv packet in ethernetReceiver.\n");
-			printf("! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-		}
-	}
+#endif
 }

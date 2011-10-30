@@ -4,8 +4,11 @@
 #include "network/ethernet.h"
 #include <stdio.h>
 #include <rtos.h>
+#include <SROSpp/irq_handler.hpp>
 
-void irq_interrupt_service_routine(void)
+irq_handler irqs;
+
+extern "C" void irq_interrupt_service_routine(void)
 {
 	static int ledval = 0;
 	if( T0IR & 0x01 ) //If Timer 0 Match
@@ -17,10 +20,7 @@ void irq_interrupt_service_routine(void)
 		
 	}
 
-	if( MAC_INTSTATUS )
-	{
-		ethernet_interrupt_handler();
-	}
+	irqs.process();
 	
 	VICVectAddr /*VICAddress*/ = 0; /*Ack the interrupt*/
     return;

@@ -9,6 +9,9 @@
 
 #ifndef __EMAC_H
 #define __EMAC_H
+
+#include <stdint.h>
+
 										/* our ethernet (MAC) address        */
 										/* (MUST be unique in LAN!)          */
 /*
@@ -303,18 +306,6 @@
 
 #define DP83848C_DEF_ADR    0x0100      /* Default PHY device address        */
 #define DP83848C_ID         0x20005C90  /* PHY Identifier                    */
-
-// prototypes
-void           Init_EMAC(void);
-unsigned short ReadFrameBE_EMAC(void);
-void           CopyToFrame_EMAC(void *Source, unsigned int Size);
-void           CopyFromFrame_EMAC(void *Dest, unsigned short Size);
-void           DummyReadFrame_EMAC(unsigned short Size);
-unsigned short StartReadFrame(void);
-void           EndReadFrame(void);
-unsigned int   CheckFrameReceived(void);
-void           RequestSend(unsigned short FrameSize);
-unsigned int   Rdy4Tx(void);
 
 #endif
 

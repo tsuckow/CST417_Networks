@@ -1,3 +1,5 @@
 #pragma once
 
-extern "C" void irq_interrupt_service_routine(void);
+#include <SROSpp/irq_handler.hpp>
+
+extern irq_handler irqs;
