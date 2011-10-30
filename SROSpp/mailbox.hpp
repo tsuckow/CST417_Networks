@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-//Mailbox has a race condition
-
 template<typename T>
 class Mailbox
 {
