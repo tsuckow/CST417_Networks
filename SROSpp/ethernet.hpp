@@ -60,10 +60,10 @@ public:
 
 	uint16_t getEtherType() const
 	{
-		return (*(buffer + ETH_TYPE_OFS) << 8) + *(buffer + ETH_TYPE_OFS + 1);
+		return (buffer[ETH_TYPE_OFS] << 8) + buffer[ETH_TYPE_OFS + 1];
 	}
 
-	uint8_t * payload()
+	uint8_t * getPayload()
 	{
 		return &buffer[ETH_DATA_OFS];
 	}
@@ -71,7 +71,15 @@ public:
 	uint_fast16_t getPayloadSize() const
 	{
 		return size - ETH_HEADER_SIZE;
+	}
+	
+	uint8_t * getFrame()
+	{
+		return buffer;
+	}
+	
+	uint_fast16_t getSize() const
+	{
+		return size;
 	}	
 };
-
-extern Mailbox<EthernetFrame> eth_incoming;
