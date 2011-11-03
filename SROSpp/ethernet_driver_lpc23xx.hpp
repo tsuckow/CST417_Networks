@@ -6,8 +6,6 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 {
 	protected:
 		unsigned short *rptr;
-		unsigned short *tptr;
-		uint8_t frame[sizeof(EthernetFrame)];
 		
 		// Keil: function added to write PHY
 		void write_PHY (int PhyReg, int Value)
@@ -62,7 +60,7 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  /* Set EMAC Receive Descriptor Registers. */
 		  MAC_RXDESCRIPTOR    = RX_DESC_BASE;
 		  MAC_RXSTATUS        = RX_STAT_BASE;
-		  MAC_RXDESCRIPTORNUM = NUM_RX_FRAG-1;
+		  MAC_RXDESCRIPTORNUM = NUM_RX_FRAG-1;//Minus 1 Encoding
 		
 		  /* Rx Descriptors Point to 0 */
 		  MAC_RXCONSUMEINDEX  = 0;
@@ -82,7 +80,7 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  /* Set EMAC Transmit Descriptor Registers. */
 		  MAC_TXDESCRIPTOR    = TX_DESC_BASE;
 		  MAC_TXSTATUS        = TX_STAT_BASE;
-		  MAC_TXDESCRIPTORNUM = NUM_TX_FRAG-1;
+		  MAC_TXDESCRIPTORNUM = NUM_TX_FRAG-1;//Minus 1 Encoding
 		
 		  /* Tx Descriptors Point to 0 */
 		  MAC_TXPRODUCEINDEX  = 0;
@@ -212,7 +210,7 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  MAC_RXFILTERCTRL = RFC_BCAST_EN | RFC_MCAST_EN | RFC_PERFECT_EN;
 		
 		  /* Enable EMAC interrupts. */
-		  MAC_INTENABLE = 0x0F;//INT_RX_DONE | INT_TX_DONE | INT_RX_OVERRUN;
+		  MAC_INTENABLE = 0xFF;//INT_RX_DONE | INT_TX_DONE | INT_RX_OVERRUN;
 		
 		  /* Reset all interrupts */
 		  MAC_INTCLEAR  = 0xFFFF;
@@ -220,54 +218,6 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  /* Enable receive and transmit mode of MAC Ethernet core */
 		  MAC_COMMAND  |= (CR_RX_EN | CR_TX_EN);
 		  MAC_MAC1     |= MAC1_REC_EN;
-		}
-		
-		// requests space in EMAC memory for storing an outgoing frame
-		
-		void RequestSend(unsigned short FrameSize)
-		{
-		  unsigned int idx;
-		
-		  idx  = MAC_TXPRODUCEINDEX;
-		  tptr = (unsigned short *)TX_DESC_PACKET(idx);
-		  TX_DESC_CTRL(idx) = FrameSize | TCTRL_LAST;
-		}
-		
-		// check if ethernet controller is ready to accept the
-		// frame we want to send
-		
-		unsigned int Rdy4Tx(void)
-		{
-		  return (1);   // the ethernet controller transmits much faster
-		}               // than the CPU can load its buffers
-		
-		
-		// writes a word in little-endian byte order to TX_BUFFER
-		void WriteFrame_EMAC(unsigned short Data)
-		{
-		  *tptr++ = Data;
-		}
-		
-		// copies bytes from MCU-memory to frame port
-		// NOTES: * an odd number of byte may only be transfered
-		//          if the frame is written to the end!
-		//        * MCU-memory MUST start at word-boundary
-		
-		void CopyToFrame_EMAC(void *Source, unsigned int Size)
-		{
-		  unsigned short * piSource;
-		  unsigned int idx;
-		
-		  piSource = reinterpret_cast<unsigned short *>(Source);
-		  Size = (Size + 1) & 0xFFFE;    // round Size up to next even number
-		  while (Size > 0) {
-		    WriteFrame_EMAC(*piSource++);
-		    Size -= 2;
-		  }
-		
-		  idx = MAC_TXPRODUCEINDEX;
-		  if (++idx == NUM_TX_FRAG) idx = 0;
-		  MAC_TXPRODUCEINDEX = idx;
 		}
 
 	public:
@@ -333,7 +283,8 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 				if( MAC_INTSTATUS & INT_TX_FIN )
 				{
 					MAC_INTCLEAR = INT_TX_FIN;
-					printf( "ETH: TX FIN\n" );
+					//printf( "ETH: TX FIN\n" );
+					sem_tx.signal();
 				}
 				
 				if( MAC_INTSTATUS & INT_TX_DONE )
@@ -372,7 +323,7 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  unsigned int idx;
 		
 		  idx = MAC_RXCONSUMEINDEX;
-		  RxLen = (RX_STAT_INFO(idx) & RINFO_SIZE) - 3;
+		  RxLen = (RX_STAT_INFO(idx) & RINFO_SIZE) + 1;
 		  rptr = (unsigned short *)RX_DESC_PACKET(idx);
 		  return(RxLen);
 		}
@@ -390,5 +341,32 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  idx = MAC_RXCONSUMEINDEX;
 		  if (++idx == NUM_RX_FRAG) idx = 0;
 		  MAC_RXCONSUMEINDEX = idx;
+		}
+		
+		virtual bool isTXFull()
+		{
+			//So tempting to use %. Bad, bad tom. Division slow.
+			return ((MAC_TXPRODUCEINDEX + 1) % NUM_TX_FRAG) == MAC_TXCONSUMEINDEX;
+		}
+		
+		//! \warning: Not Reentrant
+		virtual void sendFrame( uint8_t const * frame, uint_fast16_t size )
+		{
+			while( isTXFull() )
+			{
+				sem_tx.wait();
+			}
+			
+			
+			{
+				unsigned int idx;
+				idx = MAC_TXPRODUCEINDEX;
+		  		TX_DESC_CTRL(idx) = size | TCTRL_LAST;
+			
+				memcpy((void*)TX_DESC_PACKET(idx), frame, size);
+				
+			  	if (++idx == NUM_TX_FRAG) idx = 0;
+			  	MAC_TXPRODUCEINDEX = idx;
+			}
 		}
 };
