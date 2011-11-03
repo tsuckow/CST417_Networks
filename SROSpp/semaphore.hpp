@@ -10,7 +10,7 @@ class Semaphore
 private:
 	semaphoreObject_t box;
 public:
-	Semaphore( uint32_t init_size )
+	Semaphore( uint32_t init_size = 0 )
 	{
 		semaphoreObjectInit( &box, init_size );
 	}
@@ -25,7 +25,7 @@ public:
 
 	\return success
 	*/
-	bool wait( int32_t timeout)
+	bool wait( int32_t timeout = -1 )
 	{
 		return semaphoreObjectPend( &box, timeout );
 	}
