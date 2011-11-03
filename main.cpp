@@ -17,26 +17,21 @@
 
 #include "isr.h"
 #include "SROSpp/ethernet_driver_lpc23xx.hpp"
+#include "SROSpp/ethernet_handler.hpp"
+#include "SROSpp/arp.hpp"
 
 //http://www.keil.com/support/man/docs/armlib/armlib_Chdfjddj.htm
 
 ThreadFactory threadfactory;
-struct Test
-{
-	uint32_t a;
-	uint32_t b;	
-};
 
-Mailbox<EthernetFrame> eth_incoming(4);
-Mailbox<Test> box(2);
-
-void threadA( Mailbox<Test> * box );
-void threadB( Mailbox<Test> * box );
+ARP_Listener arp;
 
 void ethernetSender();
-void ethernetReceiver( Mailbox<EthernetFrame> * eth_incoming );
+void ethernetReceiver();
+void arpSender();
 
-Ethernet_Driver * eth0 = new Ethernet_Driver_LPC23xx();
+Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx();
+Ethernet_Handler eth_handler( eth0 );
 
 int main(void)
 {
@@ -61,10 +56,11 @@ int main(void)
    timer_init();
 
    //System threads
-   threadfactory.spawnThread(ETH_MAX_FLEN+1000, 1,ethernetReceiver,&eth_incoming);
+   threadfactory.spawnThread(1000, 1,ethernetReceiver);
+   threadfactory.spawnThread(100, 10,ethernetSender);
+   threadfactory.spawnThread(1000, 20,arpSender);
 
-   //threadfactory.spawnThread(1000,30,threadA,&box);
-   //threadfactory.spawnThread(1000,30,threadB,&box);
+   eth_handler.addListener( &arp );
 
    eth0->install( irq_interrupt_handler );
    irqs.add( eth0 );
@@ -73,32 +69,7 @@ int main(void)
    scheduler();            //This function will never return.
 }
 
-void threadA( Mailbox<Test> * box )
-{
-   Test t;
-   t.a = 0;
-   t.b = 13;
-   while(1)
-   {
-   		box->send( 250, &t );
-		t.a++;
-		t.b++;
-   }
-}
-
-void threadB( Mailbox<Test> * box )
-{
-   Test	t;
-   while(1)
-   {
-   		box->recv( -1, &t );
-   		sendchar(t.a%26 + 'a');
-		sendchar(t.b%26 + 'a');
-		sleep(500);
-   }
-}
-
-void ethernetReceiver( Mailbox<EthernetFrame> * eth_incoming )
+void ethernetReceiver()
 {
 	eth0->init();
 	
@@ -116,64 +87,62 @@ void ethernetReceiver( Mailbox<EthernetFrame> * eth_incoming )
 				
 				EthernetFrame frame( framedata, framesize );
 				
-				printf( "--- Ethernet Frame header ---\n" );
+				eth_handler.handleRecv( &frame );
 				
-				unsigned short type = frame.getEtherType();
-				if( type >= 0x0600 )
+				/*
+				printf( "\n--- Ethernet Data ---\n" );
+				for( int i = 0; i < framesize; ++i )
 				{
-					//Type
-					printf( "Type                    : 0x%0.4X ", type );
-	
-					//What is the type?
-					switch(type)
+					if( (i % 24) == 0 )
 					{
-	
-						case 0x0800:
-							printf( "(IPv4)"	 );
-							break;
-						case 0x0806:
-							printf( "(ARP)"	 );
-							break;
-						case 0x86DD:
-							printf( "(IPv6)"	 );
-							break;
-						default:
-							printf( "(Unknown)"	 );
+						printf( "\n" );
 					}
-	
-					printf( "\n" );
+					
+					printf( "%0.2x ", framedata[i] );
 				}
-				else
-				{
-					//Length
-					printf( "Length                  : %d bytes\n", type );
-				}
+				printf( "\n--- DONE ---\n" );
+				*/
+			
 			}
 			eth0->endReadFrame();
 		}
 	}
-#if 0
-	/*		 
-			printf( "Destination Address     : " );
-			printMAC( framebuffer + ETH_DA_OFS );
-			printf( "\n" );
-			
-			printf( "Source Address          : " );
-			printMAC( framebuffer + ETH_SA_OFS );
-			printf("\n");
-   */
-			
- 	/*
-			printf( "\n--- Ethernet Data ---\n" );
-			for( i = ETH_HEADER_SIZE; i < len; ++i )
-			{
-				if( i != ETH_HEADER_SIZE && (i - ETH_HEADER_SIZE) % 24 == 0 )
-				{
-					printf( "\n" );
-				}
+	
+	
+	
 				
-				printf( "%0.2x ", frame[i] );
-			}
-			   */
-#endif
+}
+
+void ethernetSender()
+{
+	eth_handler.sender();
+}
+
+void arpSender()
+{
+	uint8_t frame[ 500 ];
+	
+	size_t i = 0;
+	frame[i++] = 0xFF;
+	frame[i++] = 0xFF;
+	frame[i++] = 0xFF;
+	frame[i++] = 0xFF;
+	frame[i++] = 0xFF;
+	frame[i++] = 0xFF;
+	frame[i++] = 0x01;
+	frame[i++] = 0x02;
+	frame[i++] = 0x03;
+	frame[i++] = 0x04;
+	frame[i++] = 0x05;
+	frame[i++] = 0x06;
+	frame[i++] = 0x08;
+	frame[i++] = 0x06;
+	
+	EthernetFrame eframe(frame, 64);
+	
+	while( true )
+	{
+		eth_handler.sendFrame( &eframe );
+		sleep(1000);
+	}
 }
