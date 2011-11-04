@@ -4,6 +4,7 @@
 #include "mailbox.hpp"
 #include <stdint.h>
 #include <string.h>
+#include "endian.hpp"
 
 static uint16_t const ETHERNET_TYPE_ARP = 0x0806;
 //static uint16_t const ETHERNET_TYPE_IPV4 = ;
@@ -60,7 +61,7 @@ public:
 
 	uint16_t getEtherType() const
 	{
-		return (buffer[ETH_TYPE_OFS] << 8) + buffer[ETH_TYPE_OFS + 1];
+		return loadBig16(buffer + ETH_TYPE_OFS);
 	}
 
 	uint8_t * getPayload()
@@ -81,5 +82,10 @@ public:
 	uint_fast16_t getSize() const
 	{
 		return size;
-	}	
+	}
+	
+	static uint16_t getOverhead()
+	{
+		return 6*2 + 2 + 4;
+	}
 };
