@@ -352,6 +352,7 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		//! \warning: Not Reentrant
 		virtual void sendFrame( uint8_t const * frame, uint_fast16_t size )
 		{
+			//TODO: Could be optimized to fill last buffer then wait to increment produce index.
 			while( isTXFull() )
 			{
 				sem_tx.wait();

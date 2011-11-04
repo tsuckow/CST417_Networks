@@ -330,7 +330,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>3</Optim>
+            <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -410,6 +410,11 @@
               <FileType>5</FileType>
               <FilePath>.\isr.h</FilePath>
             </File>
+            <File>
+              <FileName>memmutex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\memmutex.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -421,14 +426,14 @@
               <FilePath>.\serial\Serial.cpp</FilePath>
             </File>
             <File>
-              <FileName>Retarget.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\serial\Retarget.c</FilePath>
-            </File>
-            <File>
               <FileName>serial.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\serial\serial.h</FilePath>
+            </File>
+            <File>
+              <FileName>retarget.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\serial\retarget.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -574,6 +579,41 @@
               <FileName>semaphore.hpp</FileName>
               <FileType>5</FileType>
               <FilePath>.\SROSpp\semaphore.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>arp.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\arp.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>driver.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\driver.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>ethernet_driver.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\ethernet_driver.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>ethernet_driver_lpc23xx.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\ethernet_driver_lpc23xx.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>ethernet_handler.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\ethernet_handler.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>ethernet_nic.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\ethernet_nic.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>irq_handler.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\irq_handler.hpp</FilePath>
             </File>
           </Files>
         </Group>
