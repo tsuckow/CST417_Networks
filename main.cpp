@@ -33,6 +33,10 @@ void arpSender();
 Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx();
 Ethernet_Handler eth_handler( eth0 );
 
+extern "C" int _mutex_init_calls;
+extern "C" int _mutex_aqui_calls;
+extern "C" int _mutex_rele_calls;
+
 int main(void)
 {
 	LED_Init();
@@ -64,6 +68,8 @@ int main(void)
 
    eth0->install( irq_interrupt_handler );
    irqs.add( eth0 );
+
+   printf("MUTEX: %d %d %d\n", _mutex_init_calls, _mutex_aqui_calls, _mutex_rele_calls);
 
    printf("#Starting Scheduler\n");
    scheduler();            //This function will never return.
