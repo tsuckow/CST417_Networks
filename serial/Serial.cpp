@@ -59,11 +59,12 @@ int sendchar (int ch)  {                 /* Write character to Serial Port    */
 
   return (UxTHR = ch);
 }
+
+int getkey (void) 
+{                /* Read character from Serial Port   */
+
+	  while (!(UxLSR & 0x01));
+
+	  return (UxRBR);
 }
-
-int getkey (void)  {                     /* Read character from Serial Port   */
-
-  while (!(UxLSR & 0x01));
-
-  return (UxRBR);
 }

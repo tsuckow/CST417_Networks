@@ -3,4 +3,4 @@ void init_serial    (void);
 
 extern "C" int sendchar (int ch);
 
-int getkey (void);
+extern "C" int getkey (void);
