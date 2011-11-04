@@ -2,6 +2,7 @@
 *.swp
 #Windows
 Thumbs.db
+*.lnk
 #Output Files
 *.o
 *.old
