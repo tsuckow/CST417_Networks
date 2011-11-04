@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ethernet_handler.hpp"
+#include "endian.hpp"
 
 class ARPCacheEntry
 {
@@ -8,24 +9,80 @@ class ARPCacheEntry
 	//EthernetAddress
 };
 
+static uint_fast8_t const ARP_HTYPE_OFFSET = 0;
+static uint_fast8_t const ARP_PTYPE_OFFSET = 2;
+
+static uint_fast8_t const ARP_HLEN_OFFSET = 4;
+static uint_fast8_t const ARP_PLEN_OFFSET = 5;
+
+static uint_fast8_t const ARP_OPER_OFFSET = 6;
+
+static uint_fast8_t const ARP_ADDR_OFFSET = 8;
+
 static uint16_t const ARP_HTYPE_ETHERNET = 0x0001;
 static uint16_t const ARP_PTYPE_IPV4     = 0x0800;
 
-static uint8_t const ARP_HSIZE_ETHERNET = 6;
-static uint8_t const ARP_PSIZE_IPV4     = 4;
+static uint8_t const ARP_HLEN_ETHERNET = 6;
+static uint8_t const ARP_PLEN_IPV4     = 4;
+
+static uint16_t const ARP_OPER_REQUEST  = 1;
+static uint16_t const ARP_OPER_REPLY    = 2;
 
 class ARPFrame_Eth_IPv4
 {
-	EthernetFrame * const eframe;
+	uint8_t * const payload;
 
-	ARPFrame_Eth_IPv4( EthernetFrame * eframe )	: eframe(eframe)
+	public:
+	ARPFrame_Eth_IPv4( uint8_t * payload )	: payload(payload)
 	{
 	}
 
+	uint16_t getHTYPE()
+	{
+		return loadBig16( payload+ARP_HTYPE_OFFSET );
+	}
+
+	uint16_t getPTYPE()
+	{
+		return loadBig16( payload+ARP_PTYPE_OFFSET );
+	}
+
+	uint8_t getHLEN()
+	{
+		return load8( payload+ARP_HLEN_OFFSET );
+	}
+
+	uint8_t getPLEN()
+	{
+		return load8( payload+ARP_PLEN_OFFSET );
+	}
+
+	uint16_t getOPER()
+	{
+		return loadBig16( payload+ARP_OPER_OFFSET );		
+	}
+
+
+
 	bool isValid()
 	{
-		//TODO
-		return false;
+		bool valid =
+			(getHTYPE() == ARP_HTYPE_ETHERNET) &&
+			(getPTYPE() == ARP_PTYPE_IPV4) &&
+			(getHLEN()  == ARP_HLEN_ETHERNET) &&
+			(getPLEN()  == ARP_PLEN_IPV4) &&
+				(
+					(getOPER()  == ARP_OPER_REQUEST) ||
+					(getOPER()  == ARP_OPER_REPLY)
+				)
+			;
+
+		return valid;
+	}
+
+	uint16_t getSize()
+	{
+		return 8 + ARP_HLEN_ETHERNET*2 + ARP_PLEN_IPV4*2;
 	}
 };
 
@@ -36,7 +93,12 @@ public:
 	{
 		if( frame->getEtherType() == ETHERNET_TYPE_ARP )
 		{
-			printf("Yar! Me be recievin' ARP.\n");
+			ARPFrame_Eth_IPv4 arpFrame( frame->getPayload() );
+
+			if( arpFrame.isValid() )
+			{
+				printf("Got valid ARP.\n");	
+			}
 		}
 	}
 };
