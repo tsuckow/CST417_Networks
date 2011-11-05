@@ -72,8 +72,6 @@ int main(void)
 
 void ethernetReceiver()
 {
-	eth0->init();
-	
 	while(true)
 	{
 		eth0->recv_wait( -1 );//Wait forever
@@ -97,6 +95,7 @@ void ethernetReceiver()
 
 void ethernetSender()
 {
+	eth0->init();
 	eth_handler.sender();
 }
 
