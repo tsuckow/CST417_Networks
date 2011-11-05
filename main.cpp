@@ -18,21 +18,23 @@
 #include "isr.h"
 #include "SROSpp/ethernet_driver_lpc23xx.hpp"
 #include "SROSpp/ethernet_handler.hpp"
-#include "SROSpp/arp.hpp"
+#include "SROSpp/arp_handler.hpp"
 
 //http://www.keil.com/support/man/docs/armlib/armlib_Chdfjddj.htm
 
 ThreadFactory threadfactory;
 
-ARP_Listener arp;
-
 void ethernetSender();
 void ethernetReceiver();
-void arpSender();
+void arpRequestThread();
+void arpRecieveThread();
+void userThread();
 
 Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx();
 Ethernet_Handler eth_handler( eth0 );
 
+unsigned char const myipaddr[4] = {192,168,0,13};
+ARP_Handler arp_handler( &eth_handler, myipaddr );
 
 int main(void)
 {
@@ -57,11 +59,14 @@ int main(void)
    timer_init();
 
    //System threads
-   threadfactory.spawnThread(1000, 1,ethernetReceiver);
-   threadfactory.spawnThread(100, 10,ethernetSender);
-   threadfactory.spawnThread(1000, 20,arpSender);
+   threadfactory.spawnThread(30, 1,ethernetReceiver);
+   threadfactory.spawnThread(30, 10,ethernetSender);
+   //threadfactory.spawnThread(1000, 20,arpSender);
+   threadfactory.spawnThread(100, 21,arpRequestThread);
+   threadfactory.spawnThread(100, 20,arpRecieveThread);
+   threadfactory.spawnThread(100, 100,userThread);
 
-   eth_handler.addListener( &arp );
+   eth_handler.addListener( &arp_handler );
 
    eth0->install( irq_interrupt_handler );
    irqs.add( eth0 );
@@ -125,5 +130,30 @@ void arpSender()
 	{
 		eth_handler.sendFrame( &eframe );
 		sleep(1000);
+	}
+}
+
+void arpRequestThread()
+{
+	arp_handler.requestThread();	
+}
+
+void arpRecieveThread()
+{
+	arp_handler.packetRecieveThread();
+}
+
+void userThread()
+{
+	unsigned char addr[4] = {192,168,0,123};
+	IPAddress iaddress( addr );
+	EthernetAddress eaddress;
+
+	while(true)
+	{
+		eaddress = arp_handler.request( iaddress );
+		eaddress.print();
+		printf("\n");
+		sleep(3000);
 	}
 }

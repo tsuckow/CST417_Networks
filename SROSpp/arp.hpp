@@ -1,13 +1,8 @@
 #pragma once
 
 #include "ethernet_handler.hpp"
+#include "ip.hpp"
 #include "endian.hpp"
-
-class ARPCacheEntry
-{
-	//IP4Addr
-	//EthernetAddress
-};
 
 static uint_fast8_t const ARP_HTYPE_OFFSET = 0;
 static uint_fast8_t const ARP_PTYPE_OFFSET = 2;
@@ -62,7 +57,25 @@ class ARPFrame_Eth_IPv4
 		return loadBig16( payload+ARP_OPER_OFFSET );		
 	}
 
+	EthernetAddress getSenderEthernetAddress()
+	{
+		return EthernetAddress( payload + ARP_ADDR_OFFSET );
+	}
 
+	IPAddress getSenderIPAddress()
+	{
+		return IPAddress( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET );
+	}
+
+	EthernetAddress getTargetEthernetAddress()
+	{
+		return EthernetAddress( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET + ARP_PLEN_IPV4 );
+	}
+
+	IPAddress getTargetIPAddress()
+	{
+		return IPAddress( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET*2 + ARP_PLEN_IPV4 );
+	}
 
 	bool isValid()
 	{
@@ -83,22 +96,5 @@ class ARPFrame_Eth_IPv4
 	uint16_t getSize()
 	{
 		return 8 + ARP_HLEN_ETHERNET*2 + ARP_PLEN_IPV4*2;
-	}
-};
-
-class ARP_Listener : public Ethernet_Listener
-{
-public:
-	virtual void processFrame( EthernetFrame * frame )
-	{
-		if( frame->getEtherType() == ETHERNET_TYPE_ARP )
-		{
-			ARPFrame_Eth_IPv4 arpFrame( frame->getPayload() );
-
-			if( arpFrame.isValid() )
-			{
-				printf("Got valid ARP.\n");	
-			}
-		}
 	}
 };
