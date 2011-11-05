@@ -33,9 +33,6 @@ void arpSender();
 Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx();
 Ethernet_Handler eth_handler( eth0 );
 
-extern "C" int _mutex_init_calls;
-extern "C" int _mutex_aqui_calls;
-extern "C" int _mutex_rele_calls;
 
 int main(void)
 {
@@ -69,8 +66,6 @@ int main(void)
    eth0->install( irq_interrupt_handler );
    irqs.add( eth0 );
 
-   printf("MUTEX: %d %d %d\n", _mutex_init_calls, _mutex_aqui_calls, _mutex_rele_calls);
-
    printf("#Starting Scheduler\n");
    scheduler();            //This function will never return.
 }
@@ -94,29 +89,10 @@ void ethernetReceiver()
 				EthernetFrame frame( framedata, framesize );
 				
 				eth_handler.handleRecv( &frame );
-				
-				/*
-				printf( "\n--- Ethernet Data ---\n" );
-				for( int i = 0; i < framesize; ++i )
-				{
-					if( (i % 24) == 0 )
-					{
-						printf( "\n" );
-					}
-					
-					printf( "%0.2x ", framedata[i] );
-				}
-				printf( "\n--- DONE ---\n" );
-				*/
-			
 			}
 			eth0->endReadFrame();
 		}
-	}
-	
-	
-	
-				
+	}				
 }
 
 void ethernetSender()
