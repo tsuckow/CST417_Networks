@@ -52,10 +52,23 @@ class ARPFrame_Eth_IPv4
 		return load8( payload+ARP_PLEN_OFFSET );
 	}
 
-	uint16_t getOPER()
-	{
-		return loadBig16( payload+ARP_OPER_OFFSET );		
-	}
+   void setHeaders()
+   {
+      storeBig16( payload+ARP_HTYPE_OFFSET, ARP_HTYPE_ETHERNET );
+      storeBig16( payload+ARP_PTYPE_OFFSET, ARP_PTYPE_IPV4     );
+      store8(     payload+ARP_HLEN_OFFSET,  ARP_HLEN_ETHERNET  );
+      store8(     payload+ARP_PLEN_OFFSET,  ARP_PLEN_IPV4      );
+   }
+
+   uint16_t getOPER()
+   {
+      loadBig16( payload+ARP_OPER_OFFSET );
+   }
+
+   void setOPER( uint16_t oper )
+   {
+      storeBig16( payload+ARP_OPER_OFFSET, oper );
+   }
 
 	EthernetAddress getSenderEthernetAddress()
 	{
@@ -76,6 +89,26 @@ class ARPFrame_Eth_IPv4
 	{
 		return IPAddress( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET*2 + ARP_PLEN_IPV4 );
 	}
+
+   void setSenderEthernetAddress(EthernetAddress eaddr)
+   {
+      eaddr.store( payload + ARP_ADDR_OFFSET );
+   }
+
+   void IPAddress setSenderIPAddress(IPAddress iaddr)
+   {
+      iaddr.store( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET );
+   }
+
+   void setTargetEthernetAddress(EthernetAddress eaddr)
+   {
+      eaddr.store( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET + ARP_PLEN_IPV4 );
+   }
+
+   void setTargetIPAddress(IPAddress iaddr)
+   {
+      iaddr.store( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET*2 + ARP_PLEN_IPV4 );
+   }
 
 	bool isValid()
 	{

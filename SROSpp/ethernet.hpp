@@ -46,6 +46,11 @@ public:
 	{
 		printf("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",addr[0],addr[1],addr[2],addr[3],addr[4],addr[5]);
 	}
+
+   void store( uint8_t * buffer )
+   {
+      memcpy( buffer, addr, SIZE );
+   }
 };
 
 class EthernetFrame

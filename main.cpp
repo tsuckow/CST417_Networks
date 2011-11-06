@@ -95,7 +95,7 @@ void ethernetReceiver()
 			}
 			eth0->endReadFrame();
 		}
-	}				
+	}
 }
 
 void ethernetSender()
@@ -135,7 +135,7 @@ void arpSender()
 
 void arpRequestThread()
 {
-	arp_handler.requestThread();	
+	arp_handler.requestThread();
 }
 
 void arpRecieveThread()
@@ -157,3 +157,4 @@ void userThread()
 		sleep(3000);
 	}
 }
+

@@ -36,4 +36,9 @@ public:
 	{
 		printf("%d.%d.%d.%d",addr[0],addr[1],addr[2],addr[3]);
 	}
+
+   void store( uint8_t * buffer )
+   {
+      memcpy( buffer, addr, SIZE );
+   }
 };
