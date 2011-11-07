@@ -1,4 +1,8 @@
+//Internet Protocol Structures
+
 #pragma once
+
+static uint8_t const IP_UNCONFIGURED[4] = {0x00,0x00,0x00,0x00};
 
 class IPAddress
 {

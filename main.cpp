@@ -118,7 +118,7 @@ void arpRecieveThread()
 
 IPAddress readIP( UART1_Driver * console )
 {
-   uint_fast8_t points[3] = {0};
+   //uint_fast8_t points[3] = {0};
    uint8_t octets[4] = {0};
    uint_fast8_t octet = 0;
    uint_fast8_t chars = 0;
@@ -126,18 +126,41 @@ IPAddress readIP( UART1_Driver * console )
    while( true )
    {
       char ch = 0;
-      while( (ch < '0' || ch > '9') && ch != '.' )
+      while( (ch < '0' || ch > '9') && ch != '.' && ch != '\n' && ch != '\r' )
       {
          ch = console->getC();
       }
       
       if( ch == '.' )
       {
-         if(  )
+         if( octet < 3 )
+		 {
+			if( chars > 0 )
+			{
+				printf(".");
+				//points[octet] = chars;
+				octet++;
+				chars = 0;
+			}
+		 }
       }
+	  else if( ch == '\n' || ch == '\r' )
+	  {
+	  	if( octet == 3 )
+		{
+			printf("\n");
+			return 	IPAddress(octets);
+		}
+	  }
       else
       {
-         
+         if( (octets[octet] == 25 && ch <= '5') || octets[octet] < 25 )
+		 {
+		 	printf("%c", ch );
+			octets[octet] *= 10;
+			octets[octet] += (ch - '0');
+			chars++;
+		 }
       }
    }
 }
@@ -168,9 +191,17 @@ void userThread( UART1_Driver * console )
       {
          case '1':
             iaddress = readIP( console );
+			printf("Resolving...\n");
             eaddress = arp_handler.request( iaddress );
-      		eaddress.print();
-      		printf("\n");
+			if( !(eaddress == ETHERNET_UNCONFIGURED) )
+			{
+      			eaddress.print();
+      			printf("\n");
+			}
+			else
+			{
+				printf("HOST UNREACHABLE: Request Timeout\n");
+			}
             break;
          case '2':
             arp_handler.print();

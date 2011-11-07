@@ -1,3 +1,6 @@
+// Middle layer between the ARP cache and ethernet
+// Provides the user API for performing an address resolution
+
 #pragma once
 
 #include "arp.hpp"
@@ -92,8 +95,8 @@ protected:
             an.time = t + REQUEST_EXPIRATION;
             if( !cache.notify( an ) )
             {
+			   printf("Sending ARP Request Again...\n");
                sendRequest( *an.request );
-               printf("ARP: Sent Another Request.\n");
             }
          }
          else
@@ -151,12 +154,13 @@ public:
          if( next > 0 )
          {
             timediff = next - srostime;
+            if( timediff < 0 ) timediff = 0;
          }
-         printf("Waiting: %d\n", timediff);
+
          bool gotMsg = requestQueue.recv( timediff, &message );
-         
+
          handleExpired();
-         
+
          if( gotMsg )
          {
             ARPNotification notification;
@@ -167,8 +171,8 @@ public:
             
             if( !cache.notify( notification ) )
             {
+			      printf("Sending ARP Request...\n");
                sendRequest( *message.request );
-               printf("ARP: Sent Request.\n");
             }
          }
 		}
@@ -180,7 +184,11 @@ public:
 		{
 			ARPFrame message;
 			recieveQueue.recv( -1, &message );
-			cache.updateEntry( message.hsender, message.psender, srostime + CACHE_ENTRY_EXPIRATION );
+         
+         if( !(message.psender == IP_UNCONFIGURED) )
+         {
+			   cache.updateEntry( message.hsender, message.psender, srostime + CACHE_ENTRY_EXPIRATION );
+         }
 			
          //Handle request for me
          if( message.opcode == ARP_OPER_REQUEST )
