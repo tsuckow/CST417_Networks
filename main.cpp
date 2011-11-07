@@ -17,6 +17,7 @@
 
 #include "isr.h"
 #include "SROSpp/ethernet_driver_lpc23xx.hpp"
+#include "SROSpp/uart1_driver.hpp"
 #include "SROSpp/ethernet_handler.hpp"
 #include "SROSpp/arp_handler.hpp"
 
@@ -30,6 +31,7 @@ void userThread();
 
 uint8_t const mymacaddr[6] = {0x00,0x11,0x22,0x33,0x44,0x55};
 Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx(mymacaddr);
+UART1_Driver * const uart1 = new UART1_Driver();
 Ethernet_Handler eth_handler( eth0 );
 
 uint8_t const myipaddr[4] = {192,168,0,13};
@@ -40,7 +42,7 @@ int main(void)
 	LED_Init();
 	LED_Out(0x55);
 
-	init_serial();
+   uart1->install( irq_interrupt_handler );
 
 	printf("\n\n\n\n==MAIN==\n");
 
@@ -58,17 +60,19 @@ int main(void)
    timer_init();
 
    //System threads
-   threadfactory.spawnThread(30, 1,ethernetReceiver);
-   threadfactory.spawnThread(30, 10,ethernetSender);
+   threadfactory.spawnThread(100, 1,ethernetReceiver);
+   threadfactory.spawnThread(100, 10,ethernetSender);
    //threadfactory.spawnThread(1000, 20,arpSender);
-   threadfactory.spawnThread(200, 21,arpRequestThread);
-   threadfactory.spawnThread(200, 20,arpRecieveThread);
-   threadfactory.spawnThread(200, 100,userThread);
+   threadfactory.spawnThread(400, 21,arpRequestThread);
+   threadfactory.spawnThread(400, 20,arpRecieveThread);
+   threadfactory.spawnThread(1000, 100,userThread);
 
    eth_handler.addListener( &arp_handler );
 
    eth0->install( irq_interrupt_handler );
+   
    irqs.add( eth0 );
+   irqs.add( uart1 );
 
    printf("#Starting Scheduler\n");
    scheduler();            //This function will never return.
