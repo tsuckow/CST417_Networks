@@ -27,7 +27,7 @@ void ethernetSender();
 void ethernetReceiver();
 void arpRequestThread();
 void arpRecieveThread();
-void userThread();
+void userThread( UART1_Driver * console );
 
 uint8_t const mymacaddr[6] = {0x00,0x11,0x22,0x33,0x44,0x55};
 Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx(mymacaddr);
@@ -62,10 +62,9 @@ int main(void)
    //System threads
    threadfactory.spawnThread(100, 1,ethernetReceiver);
    threadfactory.spawnThread(100, 10,ethernetSender);
-   //threadfactory.spawnThread(1000, 20,arpSender);
    threadfactory.spawnThread(400, 21,arpRequestThread);
    threadfactory.spawnThread(400, 20,arpRecieveThread);
-   threadfactory.spawnThread(1000, 100,userThread);
+   threadfactory.spawnThread(1000, 100,userThread,uart1);
 
    eth_handler.addListener( &arp_handler );
 
@@ -107,35 +106,6 @@ void ethernetSender()
 	eth_handler.sender();
 }
 
-void arpSender()
-{
-	uint8_t frame[ 500 ];
-	
-	size_t i = 0;
-	frame[i++] = 0xFF;
-	frame[i++] = 0xFF;
-	frame[i++] = 0xFF;
-	frame[i++] = 0xFF;
-	frame[i++] = 0xFF;
-	frame[i++] = 0xFF;
-	frame[i++] = 0x01;
-	frame[i++] = 0x02;
-	frame[i++] = 0x03;
-	frame[i++] = 0x04;
-	frame[i++] = 0x05;
-	frame[i++] = 0x06;
-	frame[i++] = 0x08;
-	frame[i++] = 0x06;
-	
-	EthernetFrame eframe(frame, 64);
-	
-	while( true )
-	{
-		eth_handler.sendFrame( &eframe );
-		sleep(1000);
-	}
-}
-
 void arpRequestThread()
 {
 	arp_handler.requestThread();
@@ -146,7 +116,33 @@ void arpRecieveThread()
 	arp_handler.packetRecieveThread();
 }
 
-void userThread()
+IPAddress readIP( UART1_Driver * console )
+{
+   uint_fast8_t points[3] = {0};
+   uint8_t octets[4] = {0};
+   uint_fast8_t octet = 0;
+   uint_fast8_t chars = 0;
+
+   while( true )
+   {
+      char ch = 0;
+      while( (ch < '0' || ch > '9') && ch != '.' )
+      {
+         ch = console->getC();
+      }
+      
+      if( ch == '.' )
+      {
+         if(  )
+      }
+      else
+      {
+         
+      }
+   }
+}
+
+void userThread( UART1_Driver * console )
 {
 	unsigned char addr[4] = {192,168,0,123};
 	IPAddress iaddress( addr );
@@ -154,10 +150,37 @@ void userThread()
 
 	while(true)
 	{
-		eaddress = arp_handler.request( iaddress );
-		eaddress.print();
-		printf("\n");
-		sleep(3000);
+      printf("\n\n");
+      printf("1. Resolve IP Address\n");
+      printf("2. Display ARP Cache\n");
+      printf("3. Clear ARP Cache\n");
+      printf("\n>> ");
+      
+      char ch = 0;
+      while( ch < '1' || ch > '3' )
+      {
+         ch = console->getC();
+      }
+      
+      printf( "%c\n\n", ch );
+      
+      switch( ch )
+      {
+         case '1':
+            iaddress = readIP( console );
+            eaddress = arp_handler.request( iaddress );
+      		eaddress.print();
+      		printf("\n");
+            break;
+         case '2':
+            arp_handler.print();
+            break;
+         case '3':
+            arp_handler.clear();
+            break;
+         default:
+            break;
+      }
 	}
 }
 

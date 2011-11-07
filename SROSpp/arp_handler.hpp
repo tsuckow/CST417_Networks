@@ -27,7 +27,7 @@ protected:
 		IPAddress		ptarget;
 	};
 
-	static unsigned int const CACHE_ENTRY_EXPIRATION = 6 * 1000;
+	static unsigned int const CACHE_ENTRY_EXPIRATION = 60 * 1000;
    static unsigned int const REQUEST_EXPIRATION = 3000;
    static unsigned int const REQUEST_TRIES = 2;
 

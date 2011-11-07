@@ -4,7 +4,14 @@
 
 class UART1_Driver : public Driver
 {
+protected:
+   Mailbox<char> box;
+   
 public:
+   UART1_Driver() : box( 8 )
+   {
+   }
+
 	virtual ~UART1_Driver(){}
 	
 	virtual void install( void (*handler)(void) )
@@ -38,8 +45,17 @@ public:
          
          while (U1LSR & 0x01)
          {
-            printf( "Char: %d\n", U1RBR );
+            char tmp = U1RBR;
+            box.send( 0, &tmp );
          }
       }
 	}	
+   
+   char getC( bool * valid = 0, int timeout = -1 )
+   {
+      char tmp;
+      bool ok = box.recv( timeout, &tmp );
+      if( valid != 0 ) *valid = ok;
+      return tmp;
+   }
 };

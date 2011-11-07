@@ -29,7 +29,7 @@ public:
 
 		threadObjectCreate(&(tobj->t),
                      (void *)func,
-                     static_cast<int32_t>(p1),//Param 1
+                     *reinterpret_cast<int32_t *>(&p1),//Param 1
                      static_cast<int32_t>(p2),//Param 2
                      static_cast<int32_t>(p3),//Param 3
                      static_cast<int32_t>(p4),//Param 4
