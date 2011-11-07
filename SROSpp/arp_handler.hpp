@@ -27,7 +27,7 @@ protected:
 		IPAddress		ptarget;
 	};
 
-	static unsigned int const CACHE_ENTRY_EXPIRATION = 60 * 1000;
+	static unsigned int const CACHE_ENTRY_EXPIRATION = 6 * 1000;
    static unsigned int const REQUEST_EXPIRATION = 3000;
    static unsigned int const REQUEST_TRIES = 2;
 
@@ -74,6 +74,36 @@ protected:
    {
       sendARP( etarget, itarget, ARP_OPER_REPLY );
    }
+   
+   void handleExpired()
+   {
+      uint64_t t = srostime;
+      
+      cache.removeExpiredEntries( t );
+      
+      ARPNotification an;
+      
+      while( (an = cache.removeExpiredRequest( t )).response != 0 )
+      {
+         if( an.count > 0 ) an.count--;
+         if( an.count > 0 )
+         {
+            //Try Again
+            an.time = t + REQUEST_EXPIRATION;
+            if( !cache.notify( an ) )
+            {
+               sendRequest( *an.request );
+               printf("ARP: Sent Another Request.\n");
+            }
+         }
+         else
+         {
+            //Give Up
+            EthernetAddress addr( ETHERNET_UNCONFIGURED );
+            an.response->send( 0, &addr );
+         }
+      }
+   }
 
 public:
 	ARP_Handler( Ethernet_Handler * handler, IPAddress myIP )
@@ -115,17 +145,31 @@ public:
 		while(true)
 		{
 			RequestMessage message;
-			requestQueue.recv( -1, &message );
-
-         ARPNotification notification;
-         notification.request = message.request;
-         notification.response = message.response;
-         notification.count = 2;
-         notification.time = srostime + REQUEST_EXPIRATION;
-         if( !cache.notify( notification ) )
+         
+         uint64_t next = cache.nextExpiration();
+         int timediff = -1;
+         if( next > 0 )
          {
-            sendRequest( *message.request );
-            printf("ARP: Sent Request.\n");
+            timediff = next - srostime;
+         }
+         printf("Waiting: %d\n", timediff);
+         bool gotMsg = requestQueue.recv( timediff, &message );
+         
+         handleExpired();
+         
+         if( gotMsg )
+         {
+            ARPNotification notification;
+            notification.request = message.request;
+            notification.response = message.response;
+            notification.count = 2;
+            notification.time = srostime + REQUEST_EXPIRATION;       
+            
+            if( !cache.notify( notification ) )
+            {
+               sendRequest( *message.request );
+               printf("ARP: Sent Request.\n");
+            }
          }
 		}
 	}
@@ -167,4 +211,14 @@ public:
 
 		return eaddress;
 	}
+   
+   void clear()
+   {
+      cache.clear();
+   }
+   
+   void print()
+   {
+      cache.print( srostime );
+   }
 };

@@ -97,9 +97,18 @@ public:
 		mutex.release();
 	}
 
-	void removeExpiredEntries()
+	void removeExpiredEntries( uint64_t time )
 	{
 		mutex.lock();
+      
+      for( size_t i = 0; i < NUM_ENTRIES; ++i )
+      {
+         if( entries[i].time < time )
+         {
+            entries[i].time = 0;
+         }
+      }
+      
 		mutex.release();
 	}
    
@@ -138,7 +147,7 @@ public:
       
       for( size_t i = 0; i < NUM_ENTRIES; ++i )
       {
-         if( entries[i].iaddr == *msg.request )
+         if( entries[i].time != 0 && entries[i].iaddr == *msg.request )
          {
             msg.response->send( 0, &entries[i].eaddr );
             found = true;
@@ -153,6 +162,69 @@ public:
       
 		mutex.release();
       return found;
+	}
+   
+   uint64_t nextExpiration()
+	{
+		mutex.lock();
+      
+      uint64_t next = 0;
+      
+      for( size_t i = 0; i < NUM_ENTRIES; ++i )
+      {
+         if( (entries[i].time != 0 && entries[i].time < next) || next == 0 )
+         {
+            next = entries[i].time;
+         }
+      }
+      
+      {
+         plist::iterator begin = pending.begin();
+   		plist::iterator end   = pending.end();
+   		
+   		for(; begin != end; ++begin)
+   		{
+            if( (begin->time < next) || next == 0 )
+            {
+               next = begin->time;
+            }
+   		}
+      }
+      
+		mutex.release();
+      return next;
+	}
+   
+   void clear()
+	{
+		mutex.lock();
+      
+      for( size_t i = 0; i < NUM_ENTRIES; ++i )
+      {
+         entries[i].time = 0;
+      }
+      
+		mutex.release();
+	}
+   
+   void print( uint64_t now )
+	{
+		mutex.lock();
+      
+      for( size_t i = 0; i < NUM_ENTRIES; ++i )
+      {
+         if( entries[i].time != 0 )
+         {
+            int diff = (entries[i].time - now)/1000;
+            printf("%.4d ", diff );
+            entries[i].eaddr.print();
+            printf(" ");
+            entries[i].iaddr.print();
+            printf("\n");
+         }
+      }
+      
+		mutex.release();
 	}
 };
 

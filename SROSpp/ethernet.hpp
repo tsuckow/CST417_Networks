@@ -9,6 +9,7 @@
 
 static uint16_t const ETHERNET_TYPE_ARP = 0x0806;
 static uint8_t const ETHERNET_BROADCAST[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+static uint8_t const ETHERNET_UNCONFIGURED[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
 //static uint16_t const ETHERNET_TYPE_IPV4 = ;
 
 
