@@ -1,3 +1,5 @@
+//Basic ARP structures
+
 #pragma once
 
 #include "ethernet_handler.hpp"

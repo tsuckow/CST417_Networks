@@ -1,3 +1,5 @@
+//Make new and delete thread safe
+
 #include <rtos.h>
 
 #define NUM_MUTEXES	5

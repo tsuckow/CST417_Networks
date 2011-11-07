@@ -1,3 +1,6 @@
+//ARP Cache
+//Handles arp entries and the pending threads waiting on a resolution.
+
 #pragma once
 
 #include "ll.hpp"
@@ -59,13 +62,7 @@ public:
 	void updateEntry(EthernetAddress eaddress, IPAddress iaddress, uint64_t timeout)
 	{
 		mutex.lock();
-      {
-   		printf("UPDATE ARP WITH: ");
-   	    eaddress.print();
-   		printf(" ");
-   		iaddress.print();
-   		printf("\n");
-         
+      {         
          bool found = false;
          ARPCacheEntry * oldest = &entries[0];
          
@@ -164,20 +161,13 @@ public:
       return found;
 	}
    
+   //Only Pending threads
    uint64_t nextExpiration()
 	{
 		mutex.lock();
       
       uint64_t next = 0;
-      
-      for( size_t i = 0; i < NUM_ENTRIES; ++i )
-      {
-         if( (entries[i].time != 0 && entries[i].time < next) || next == 0 )
-         {
-            next = entries[i].time;
-         }
-      }
-      
+    
       {
          plist::iterator begin = pending.begin();
    		plist::iterator end   = pending.end();
