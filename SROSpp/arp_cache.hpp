@@ -206,11 +206,14 @@ public:
          if( entries[i].time != 0 )
          {
             int diff = (entries[i].time - now)/1000;
-            printf("%.4d ", diff );
-            entries[i].eaddr.print();
-            printf(" ");
-            entries[i].iaddr.print();
-            printf("\n");
+			if( diff > 0 )
+			{
+	            printf("%.4d ", diff );
+	            entries[i].eaddr.print();
+	            printf(" ");
+	            entries[i].iaddr.print();
+	            printf("\n");
+			}
          }
       }
       
