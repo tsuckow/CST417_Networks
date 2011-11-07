@@ -83,7 +83,7 @@ public:
          current = &(*current)->m_next;
       }
       
-      *current = new Node( item, m_head );
+      *current = new Node( item, 0 );
    }
    
    iterator begin()
