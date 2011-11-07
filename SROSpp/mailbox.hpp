@@ -1,6 +1,5 @@
 #pragma once
 
-#include <list>
 #include <rtos.h>
 #include <stdint.h>
 #include <stdlib.h>

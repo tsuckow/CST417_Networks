@@ -1,7 +1,8 @@
 #pragma once
 
-#include <list>
+#include "ll.hpp"
 #include "ethernet.hpp"
+#include "ethernet_driver.hpp"
 
 class Ethernet_Listener
 {
@@ -14,7 +15,7 @@ public:
 class Ethernet_Handler
 {
 	protected:
-		typedef std::list<Ethernet_Listener *> hlist;
+		typedef ll<Ethernet_Listener *> hlist;
 		hlist listeners;
 		
 		Ethernet_Driver * const driver;
@@ -69,9 +70,13 @@ class Ethernet_Handler
 				
 				//Process it
 				driver->sendFrame( item->frame->getFrame(), item->frame->getSize() );
-				printf("Handler: Sent Packet.\n");
 				
 				item->response.signal();
 			}
-		}	
+		}
+      
+      EthernetAddress getAddress()
+		{
+         return driver->getAddress();
+		}
 };

@@ -20,8 +20,6 @@
 #include "SROSpp/ethernet_handler.hpp"
 #include "SROSpp/arp_handler.hpp"
 
-//http://www.keil.com/support/man/docs/armlib/armlib_Chdfjddj.htm
-
 ThreadFactory threadfactory;
 
 void ethernetSender();
@@ -30,10 +28,11 @@ void arpRequestThread();
 void arpRecieveThread();
 void userThread();
 
-Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx();
+uint8_t const mymacaddr[6] = {0x00,0x11,0x22,0x33,0x44,0x55};
+Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx(mymacaddr);
 Ethernet_Handler eth_handler( eth0 );
 
-unsigned char const myipaddr[4] = {192,168,0,13};
+uint8_t const myipaddr[4] = {192,168,0,13};
 ARP_Handler arp_handler( &eth_handler, myipaddr );
 
 int main(void)
@@ -62,9 +61,9 @@ int main(void)
    threadfactory.spawnThread(30, 1,ethernetReceiver);
    threadfactory.spawnThread(30, 10,ethernetSender);
    //threadfactory.spawnThread(1000, 20,arpSender);
-   threadfactory.spawnThread(100, 21,arpRequestThread);
-   threadfactory.spawnThread(100, 20,arpRecieveThread);
-   threadfactory.spawnThread(100, 100,userThread);
+   threadfactory.spawnThread(200, 21,arpRequestThread);
+   threadfactory.spawnThread(200, 20,arpRecieveThread);
+   threadfactory.spawnThread(200, 100,userThread);
 
    eth_handler.addListener( &arp_handler );
 

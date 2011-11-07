@@ -6,7 +6,3 @@
 #define ETH_TYPE_OFS         12                  // Type field (16 Bit)
 #define ETH_DATA_OFS         14                  // Frame Data
 #define ETH_HEADER_SIZE      14
-
-void ethernet_init(void);
-
-void ethernet_interrupt_handler(void);

@@ -62,7 +62,7 @@ class ARPFrame_Eth_IPv4
 
    uint16_t getOPER()
    {
-      loadBig16( payload+ARP_OPER_OFFSET );
+      return loadBig16( payload+ARP_OPER_OFFSET );
    }
 
    void setOPER( uint16_t oper )
@@ -95,7 +95,7 @@ class ARPFrame_Eth_IPv4
       eaddr.store( payload + ARP_ADDR_OFFSET );
    }
 
-   void IPAddress setSenderIPAddress(IPAddress iaddr)
+   void setSenderIPAddress(IPAddress iaddr)
    {
       iaddr.store( payload + ARP_ADDR_OFFSET + ARP_HLEN_ETHERNET );
    }
@@ -126,7 +126,7 @@ class ARPFrame_Eth_IPv4
 		return valid;
 	}
 
-	uint16_t getSize()
+	static uint16_t getSize()
 	{
 		return 8 + ARP_HLEN_ETHERNET*2 + ARP_PLEN_IPV4*2;
 	}

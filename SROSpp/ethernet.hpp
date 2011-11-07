@@ -3,10 +3,12 @@
 #include <network/ethernet.h>
 #include "mailbox.hpp"
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include "endian.hpp"
 
 static uint16_t const ETHERNET_TYPE_ARP = 0x0806;
+static uint8_t const ETHERNET_BROADCAST[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 //static uint16_t const ETHERNET_TYPE_IPV4 = ;
 
 
@@ -51,6 +53,11 @@ public:
    {
       memcpy( buffer, addr, SIZE );
    }
+   
+   uint8_t * getRaw()
+   {
+      return addr;
+   }
 };
 
 class EthernetFrame
@@ -68,14 +75,29 @@ public:
 		return EthernetAddress( &buffer[ETH_DA_OFS] );
 	}
 
-    EthernetAddress getSource() const
+   EthernetAddress getSource() const
 	{
 		return EthernetAddress( &buffer[ETH_SA_OFS] );
+	}
+   
+   void setDestination( EthernetAddress addr )
+	{
+		addr.store( &buffer[ETH_DA_OFS] );
+	}
+
+   void setSource( EthernetAddress addr )
+	{
+		addr.store( &buffer[ETH_SA_OFS] );
 	}
 
 	uint16_t getEtherType() const
 	{
 		return loadBig16(buffer + ETH_TYPE_OFS);
+	}
+   
+   void setEtherType( uint16_t type )
+	{
+		storeBig16(buffer + ETH_TYPE_OFS, type);
 	}
 
 	uint8_t * getPayload()

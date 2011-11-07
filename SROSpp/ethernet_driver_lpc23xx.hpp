@@ -1,3 +1,30 @@
+// Driver handling hardware access to the MAC. Provides a standardized
+// interface for interacting with ethernet.
+//
+// == Now some legal ==
+//
+// The low level initialization code is from:
+// *****                                                        *****
+// *****  Name: cs8900.c                                        *****
+// *****  Ver.: 1.0                                             *****
+// *****  Date: 07/05/2001                                      *****
+// *****  Auth: Andreas Dannenberg                              *****
+// *****        HTWK Leipzig                                    *****
+// *****        university of applied sciences                  *****
+// *****        Germany                                         *****
+// *****  Func: ethernet packet-driver for use with LAN-        *****
+// *****        controller CS8900 from Crystal/Cirrus Logic     *****
+// *****                                                        *****
+// *****  Keil: Module modified for use with Philips            *****
+// *****        LPC2378 EMAC Ethernet controller                *****
+// *****                                                        *****
+//
+// The C++ wrapper and all new interface to the hardware is by:
+// Date:   2011-11-6 +-
+// Author: Thomas Suckow
+//         Oregon Institute of Technology
+//         United States of America
+
 #pragma once
 
 #include "ethernet_driver.hpp"
@@ -6,6 +33,7 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 {
 	protected:
 		unsigned short *rptr;
+		EthernetAddress myAddress;
 		
 		// Keil: function added to write PHY
 		void write_PHY (int PhyReg, int Value)
@@ -198,9 +226,10 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  }
 		
 		  /* Set the Ethernet MAC Address registers */
-		  MAC_SA0 = (MYMAC_6 << 8) | MYMAC_5;
-		  MAC_SA1 = (MYMAC_4 << 8) | MYMAC_3;
-		  MAC_SA2 = (MYMAC_2 << 8) | MYMAC_1;
+        uint8_t * addr = myAddress.getRaw();
+		  MAC_SA0 = (addr[5] << 8) | addr[4];
+		  MAC_SA1 = (addr[3] << 8) | addr[2];
+		  MAC_SA2 = (addr[1] << 8) | addr[0];
 		
 		  /* Initialize Tx and Rx DMA Descriptors */
 		  rx_descr_init ();
@@ -221,6 +250,14 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		}
 
 	public:
+		Ethernet_Driver_LPC23xx( EthernetAddress eaddr ) : myAddress( eaddr )
+		{
+		}
+		
+		virtual ~Ethernet_Driver_LPC23xx()
+		{
+		}
+	
 		virtual bool init()
 		{
 			Init_EMAC();
@@ -369,5 +406,11 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 			  	if (++idx == NUM_TX_FRAG) idx = 0;
 			  	MAC_TXPRODUCEINDEX = idx;
 			}
+		}
+      
+      //! \brief Returns the ethernet address of this NIC
+      virtual EthernetAddress getAddress()
+		{
+         return myAddress;
 		}
 };

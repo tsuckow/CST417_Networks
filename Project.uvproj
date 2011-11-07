@@ -47,9 +47,9 @@
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
-          <DebugInformation>1</DebugInformation>
+          <DebugInformation>0</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\</ListingPath>
+          <ListingPath>.\output\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -333,7 +333,7 @@
             <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>0</OneElfS>
+            <OneElfS>1</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -606,14 +606,29 @@
               <FilePath>.\SROSpp\ethernet_handler.hpp</FilePath>
             </File>
             <File>
-              <FileName>ethernet_nic.hpp</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\SROSpp\ethernet_nic.hpp</FilePath>
-            </File>
-            <File>
               <FileName>irq_handler.hpp</FileName>
               <FileType>5</FileType>
               <FilePath>.\SROSpp\irq_handler.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>arp_cache.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\arp_cache.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>arp_handler.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\arp_handler.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>ip.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\ip.hpp</FilePath>
+            </File>
+            <File>
+              <FileName>ll.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\ll.hpp</FilePath>
             </File>
           </Files>
         </Group>

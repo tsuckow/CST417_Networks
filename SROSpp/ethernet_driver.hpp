@@ -26,4 +26,5 @@ class Ethernet_Driver : public Driver
 		virtual uint8_t * readFramePointer() = 0;
 		virtual void endReadFrame(void) = 0;
 		virtual void sendFrame( uint8_t const * frame, uint_fast16_t size ) = 0;
+      virtual EthernetAddress getAddress() = 0;
 };

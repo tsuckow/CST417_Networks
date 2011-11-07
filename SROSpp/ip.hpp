@@ -22,7 +22,7 @@ public:
 		memcpy( addr, addr_.addr, SIZE );
 	}
 
-	bool operator==( IPAddress const & rhs )
+	bool operator==( IPAddress const & rhs ) const
 	{
 		return
 			addr[0] == rhs.addr[0] &&
