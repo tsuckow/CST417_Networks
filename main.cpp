@@ -36,6 +36,7 @@ Ethernet_Handler eth_handler( eth0 );
 
 uint8_t const myipaddr[4] = {192,168,0,13};
 ARP_Handler arp_handler( &eth_handler, myipaddr );
+IPv4_Handler ipv4_handler( &eth_handler, myipaddr );
 
 int main(void)
 {
@@ -67,6 +68,7 @@ int main(void)
    threadfactory.spawnThread(1000, 100,userThread,uart1);
 
    eth_handler.addListener( &arp_handler );
+   eth_handler.addListener( &ipv4_handler );
 
    eth0->install( irq_interrupt_handler );
    

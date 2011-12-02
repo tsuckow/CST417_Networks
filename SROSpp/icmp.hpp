@@ -10,7 +10,9 @@
 static uint8_t const ICMP_TYPE_ECHOREQUEST = 0x08;
 static uint8_t const ICMP_TYPE_ECHOREQUEST = 0x00;
 static uint8_t const ICMP_HEADER_SIZE = 8;
-static uint8_t const ICMP_HEADER_SIZE = 8;
+static uint8_t const ICMP_TYPE_OFFSET= 0;
+static uint8_t const ICMP_CODE_OFFSET = 1;
+static uint8_t const ICMP_CHECKSUM_OFFSET = 2;
 
 class ICMPFrame
 {
@@ -22,6 +24,26 @@ public:
 	{
 	}
 
+   uint8_t getType()
+   {
+      return load8( buffer + ICMP_TYPE_OFFSET );
+   }
+
+   uint8_t getCode()
+   {
+   }
+
+   uint16_t getChecksum()
+   {
+   }
+
+   uint16_t computeChecksum()
+   {
+   }
+
+   bool isValid()
+   {
+   }
 
 	uint8_t * getPayload()
 	{
@@ -45,6 +67,6 @@ public:
 	
 	static uint16_t getOverhead()
 	{
-		return 8;
+		return ICMP_HEADER_SIZE;
 	}
 };
