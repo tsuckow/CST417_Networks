@@ -22,6 +22,7 @@
 #include "SROSpp/arp_handler.hpp"
 #include "SROSpp/ip.hpp"
 #include "SROSpp/icmp.hpp"
+#include "SROSpp/icmpechoserver.hpp"
 
 ThreadFactory threadfactory;
 
@@ -40,6 +41,7 @@ uint8_t const myipaddr[4] = {192,168,0,13};
 ARP_Handler arp_handler( &eth_handler, myipaddr );
 IP::IPv4_Handler ipv4_handler( &eth_handler, myipaddr );
 ICMP_Handler icmp_handler;
+ICMPEchoServer echoServer;
 
 int main(void)
 {
@@ -74,6 +76,8 @@ int main(void)
    eth_handler.addListener( &ipv4_handler );
 
    ipv4_handler.addListener( &icmp_handler );
+   
+   icmp_handler.addListener( &echoServer );
 
    eth0->install( irq_interrupt_handler );
    

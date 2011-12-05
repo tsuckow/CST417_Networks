@@ -101,45 +101,57 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 14;
    public:
       IPv4Frame( uint8_t * const frame_buffer, uint_fast16_t frame_size ) : buffer(frame_buffer), size( frame_size )
       {
+         printf("IPsize: %u\n", size );
       }
 
-      uint8_t getVersion()
+      uint8_t getVersion() const
       {
          uint8_t tmp = load8( buffer + IPv4_VERSION_OFFSET );
          tmp &= IPv4_VERSION_MASK;
          return tmp >> IPv4_VERSION_BITOFFSET;
       }
-
-	  uint8_t getProtocol()
-	  {
-	  	return load8( buffer + IPv4_PROTOCOL_OFFSET );
-	  }
-
-      uint8_t getCode()
+      
+      uint8_t getHeaderLength() const
       {
+         uint8_t tmp = load8( buffer + IPv4_HLEN_OFFSET );
+         tmp &= IPv4_HLEN_MASK;
+         tmp >>= IPv4_HELN_BITOFFSET;
+         return tmp * 4;
+      }
+      
+      uint16_t getTotalLength() const
+      {
+         return loadBig16( buffer + IPv4_TOTALLEN_OFFSET );
       }
 
-      uint16_t getChecksum()
+  	  uint8_t getProtocol() const
+  	  {
+      return load8( buffer + IPv4_PROTOCOL_OFFSET );
+  	  }
+
+      uint16_t getChecksum() const
       {
+         return loadBig16( buffer + IPv4_CHECKSUM_OFFSET );
       }
 
-      uint16_t computeChecksum()
+      uint16_t computeChecksum() const
       {
+         return checksum( buffer, getHeaderLength(), 5 );
       }
 
-      bool isValid()
+      bool isValid() const
       {
-         
+         return (getChecksum() == computeChecksum()) && ( getHeaderLength() >= (5*4) ) && ( getTotalLength() <= size );
       }
 
       uint8_t * getPayload()
       {
-         //return &buffer[TODO];
+         return &buffer[getHeaderLength()];
       }
 
       uint_fast16_t getPayloadSize() const
       {
-         //return size - ICMP_HEADER_SIZE;
+         return getTotalLength() - getHeaderLength();
       }
       
       uint8_t * getFrame()
@@ -152,9 +164,10 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 14;
          return size;
       }
       
+      //We don't support setting options
       static uint16_t getOverhead()
       {
-         //return ICMP_HEADER_SIZE;
+         return 5*4;
       }
    };
 

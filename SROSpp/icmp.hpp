@@ -29,21 +29,21 @@ public:
    {
       return load8( buffer + ICMP_TYPE_OFFSET );
    }
-
-   uint8_t getCode()
+   
+   uint16_t getChecksum() const
    {
+      return loadBig16( buffer + ICMP_CHECKSUM_OFFSET );
    }
 
-   uint16_t getChecksum()
+   uint16_t computeChecksum() const
    {
+      return IP::checksum( buffer, size, 1 );
    }
-
-   uint16_t computeChecksum()
-   {
-   }
-
+   
    bool isValid()
    {
+      printf( "Got: %.4x Expected: %.4x Length: %u", getChecksum(), computeChecksum(), size );
+      return getChecksum() == computeChecksum();
    }
 
 	uint8_t * getPayload()
@@ -72,8 +72,21 @@ public:
 	}
 };
 
+class ICMP_Listener
+{
+public:
+      virtual ~ICMP_Listener()
+      {
+      }
+
+      virtual void processFrame( ICMPFrame * frame ) = 0;
+};
+
 class ICMP_Handler : public IP::IPv4_Listener
 {
+      typedef ll<ICMP_Listener *> hlist;
+      hlist listeners;
+
 public:
 	ICMP_Handler()
 	{
@@ -84,11 +97,27 @@ public:
 		
 	}
 
-	void processFrame( IP::IPv4Frame * frame )
+	virtual void processFrame( IP::IPv4Frame * ipframe )
 	{
-		if( frame->getProtocol() == IP::IPv4_PROTO_ICMP )
+		if( ipframe->getProtocol() == IP::IPv4_PROTO_ICMP )
 		{
-			printf("ICMP Packet\n");
+         ICMPFrame icmpframe( ipframe->getPayload(), ipframe->getPayloadSize() );
+         
+         if( icmpframe.isValid() )
+         {
+   		   hlist::iterator begin = listeners.begin();
+            hlist::iterator end   = listeners.end();
+   
+            for(; begin != end; ++begin)
+            {
+               (*begin)->processFrame( &icmpframe );
+            }
+         }
 		}
 	}
+   
+   void addListener( ICMP_Listener * listener )
+   {
+      listeners.push_back( listener );
+   }
 };
