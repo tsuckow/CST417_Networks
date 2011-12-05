@@ -109,7 +109,7 @@ public:
 
 	uint_fast16_t getPayloadSize() const
 	{
-		return size - ETH_HEADER_SIZE;
+		return size - getOverhead();
 	}
 	
 	uint8_t * getFrame()
