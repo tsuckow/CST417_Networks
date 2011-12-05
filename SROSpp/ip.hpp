@@ -52,16 +52,18 @@ namespace IP
            /* Compute Internet Checksum for "count" bytes
             *         beginning at location "addr".
             */
-   uint16_t checksum( uint8_t const * addr, size_t count )
+   uint16_t checksum( uint8_t const * addr, size_t count, int skip16 = -1 )
    {
       register int32_t sum = 0;
 
       while( count > 1 )
       {
          /*  This is the inner loop */
+         if( skip16 != 0 )
             sum += loadBig16( addr );
          addr += 2;
          count -= 2;
+         skip16 -= 1;
       }
 
       /*  Add left-over byte, if any */
