@@ -59,7 +59,7 @@ namespace IP
       while( count > 1 )
       {
          /*  This is the inner loop */
-         sum += *(uint16_t *) addr;
+            sum += loadBig16( addr );
          addr += 2;
          count -= 2;
       }
