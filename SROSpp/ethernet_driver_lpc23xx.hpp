@@ -163,6 +163,10 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		
 		  /* Put the DP83848C in reset mode */
 		  write_PHY (PHY_REG_BMCR, 0x8000);
+        
+        //Allow NIC to power up. (Could get bullshit otherwise)
+        //Parameter T2.1.1 http://www.national.com/ds/DP/DP83848C.pdf
+        sleep(200);
 		
 		  /* Wait for hardware reset to end. */
 		  for (tout = 0; tout < 0x100000; tout++) {
