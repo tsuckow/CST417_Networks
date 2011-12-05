@@ -101,7 +101,6 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 14;
    public:
       IPv4Frame( uint8_t * const frame_buffer, uint_fast16_t frame_size ) : buffer(frame_buffer), size( frame_size )
       {
-         printf("IPsize: %u\n", size );
       }
 
       uint8_t getVersion() const

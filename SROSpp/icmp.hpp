@@ -42,7 +42,6 @@ public:
    
    bool isValid()
    {
-      printf( "Got: %.4x Expected: %.4x Length: %u", getChecksum(), computeChecksum(), size );
       return getChecksum() == computeChecksum();
    }
 
