@@ -172,7 +172,6 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		  for (tout = 0; tout < 0x100000; tout++) {
 		    regv = read_PHY (PHY_REG_BMCR);
 		    if (!(regv & 0x8000)) {
-			   printf("Reset.\n");
 		      /* Reset complete */
 		      break;
 		    }
@@ -191,7 +190,6 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		      regv = read_PHY (PHY_REG_BMSR);
 		      if (regv & 0x0020) {
 		        /* Autonegotiation Complete. */
-				printf("Autonegotiation.\n");
 		        break;
 		      }
 		    }
@@ -202,7 +200,6 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 		    regv = read_PHY (PHY_REG_STS);
 		    if (regv & 0x0001) {
 		      /* Link is on. */
-			  printf("Link.\n");
 		      break;
 		    }
 		  }
