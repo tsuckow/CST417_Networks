@@ -20,6 +20,8 @@
 #include "SROSpp/uart1_driver.hpp"
 #include "SROSpp/ethernet_handler.hpp"
 #include "SROSpp/arp_handler.hpp"
+#include "SROSpp/ip.hpp"
+#include "SROSpp/icmp.hpp"
 
 ThreadFactory threadfactory;
 
@@ -36,7 +38,8 @@ Ethernet_Handler eth_handler( eth0 );
 
 uint8_t const myipaddr[4] = {192,168,0,13};
 ARP_Handler arp_handler( &eth_handler, myipaddr );
-IPv4_Handler ipv4_handler( &eth_handler, myipaddr );
+IP::IPv4_Handler ipv4_handler( &eth_handler, myipaddr );
+ICMP_Handler icmp_handler;
 
 int main(void)
 {
@@ -61,7 +64,7 @@ int main(void)
    timer_init();
 
    //System threads
-   threadfactory.spawnThread(100, 1,ethernetReceiver);
+   threadfactory.spawnThread(200, 1,ethernetReceiver);
    threadfactory.spawnThread(100, 10,ethernetSender);
    threadfactory.spawnThread(400, 21,arpRequestThread);
    threadfactory.spawnThread(400, 20,arpRecieveThread);
@@ -69,6 +72,8 @@ int main(void)
 
    eth_handler.addListener( &arp_handler );
    eth_handler.addListener( &ipv4_handler );
+
+   ipv4_handler.addListener( &icmp_handler );
 
    eth0->install( irq_interrupt_handler );
    

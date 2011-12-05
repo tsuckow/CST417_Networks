@@ -6,9 +6,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "endian.hpp"
+#include "ip.hpp"
 
 static uint8_t const ICMP_TYPE_ECHOREQUEST = 0x08;
-static uint8_t const ICMP_TYPE_ECHOREQUEST = 0x00;
+static uint8_t const ICMP_TYPE_ECHOREPLY = 0x00;
 static uint8_t const ICMP_HEADER_SIZE = 8;
 static uint8_t const ICMP_TYPE_OFFSET= 0;
 static uint8_t const ICMP_CODE_OFFSET = 1;
@@ -68,5 +69,26 @@ public:
 	static uint16_t getOverhead()
 	{
 		return ICMP_HEADER_SIZE;
+	}
+};
+
+class ICMP_Handler : public IP::IPv4_Listener
+{
+public:
+	ICMP_Handler()
+	{
+	}
+
+	virtual ~ICMP_Handler()
+	{
+		
+	}
+
+	void processFrame( IP::IPv4Frame * frame )
+	{
+		if( frame->getProtocol() == IP::IPv4_PROTO_ICMP )
+		{
+			printf("ICMP Packet\n");
+		}
 	}
 };

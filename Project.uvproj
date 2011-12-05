@@ -630,6 +630,11 @@
               <FileType>5</FileType>
               <FilePath>.\SROSpp\ll.hpp</FilePath>
             </File>
+            <File>
+              <FileName>icmp.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\icmp.hpp</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

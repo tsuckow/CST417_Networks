@@ -52,7 +52,7 @@ namespace IP
            /* Compute Internet Checksum for "count" bytes
             *         beginning at location "addr".
             */
-   uint16_t checksum( void const * addr, size_t count )
+   uint16_t checksum( uint8_t const * addr, size_t count )
    {
       register int32_t sum = 0;
 
@@ -91,11 +91,6 @@ static uint8_t const IPv4_CHECKSUM_OFFSET = 10;
 static uint8_t const IPv4_SOURCE_OFFSET = 12;
 static uint8_t const IPv4_DESTINATION_OFFSET = 14;
 
-
-
-
-static uint8_t const IPv4_CHECKSUM_OFFSET = 2;
-
    class IPv4Frame
    {
       uint8_t * const buffer;
@@ -112,6 +107,11 @@ static uint8_t const IPv4_CHECKSUM_OFFSET = 2;
          tmp &= IPv4_VERSION_MASK;
          return tmp >> IPv4_VERSION_BITOFFSET;
       }
+
+	  uint8_t getProtocol()
+	  {
+	  	return load8( buffer + IPv4_PROTOCOL_OFFSET );
+	  }
 
       uint8_t getCode()
       {
@@ -132,12 +132,12 @@ static uint8_t const IPv4_CHECKSUM_OFFSET = 2;
 
       uint8_t * getPayload()
       {
-         return &buffer[ICMP_HEADER_SIZE];
+         //return &buffer[TODO];
       }
 
       uint_fast16_t getPayloadSize() const
       {
-         return size - ICMP_HEADER_SIZE;
+         //return size - ICMP_HEADER_SIZE;
       }
       
       uint8_t * getFrame()
@@ -152,18 +152,19 @@ static uint8_t const IPv4_CHECKSUM_OFFSET = 2;
       
       static uint16_t getOverhead()
       {
-         return ICMP_HEADER_SIZE;
+         //return ICMP_HEADER_SIZE;
       }
    };
 
    class IPv4_Listener
    {
+   public:
       virtual ~IPv4_Listener()
       {
       }
 
       virtual void processFrame( IPv4Frame * frame ) = 0;
-   }
+   };
 
    class IPv4_Handler : public Ethernet_Listener
    {
@@ -176,7 +177,7 @@ static uint8_t const IPv4_CHECKSUM_OFFSET = 2;
    public:
       IPv4_Handler( Ethernet_Handler * handler, IPAddress myIP )
          : eth_handler( handler ),
-           myIP( myIP ),
+           myIP( myIP )
       {
       }
 
@@ -190,15 +191,14 @@ static uint8_t const IPv4_CHECKSUM_OFFSET = 2;
          {
             IPv4Frame ipframe( frame->getPayload(), frame->getPayloadSize() );
 
-            if( ipFrame.isValid() )
+            if( ipframe.isValid() )
             {
-               printf("IPv4 Packet\n");
                hlist::iterator begin = listeners.begin();
                hlist::iterator end   = listeners.end();
 
                for(; begin != end; ++begin)
                {
-                  (*begin)->processFrame( frame );
+                  (*begin)->processFrame( &ipframe );
                }
             }
          }
