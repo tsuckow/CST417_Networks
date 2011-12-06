@@ -70,6 +70,7 @@ int main(void)
    threadfactory.spawnThread(100, 10,ethernetSender);
    threadfactory.spawnThread(400, 21,arpRequestThread);
    threadfactory.spawnThread(400, 20,arpRecieveThread);
+   threadfactory.spawnThread(400, 20,ICMPEchoServer::serverThread,&echoServer);
    threadfactory.spawnThread(1000, 100,userThread,uart1);
 
    eth_handler.addListener( &arp_handler );

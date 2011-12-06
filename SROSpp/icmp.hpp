@@ -14,6 +14,7 @@ static uint8_t const ICMP_HEADER_SIZE = 8;
 static uint8_t const ICMP_TYPE_OFFSET= 0;
 static uint8_t const ICMP_CODE_OFFSET = 1;
 static uint8_t const ICMP_CHECKSUM_OFFSET = 2;
+static uint8_t const ICMP_QUENCH_OFFSET = 4;
 
 class ICMPFrame
 {
@@ -30,14 +31,34 @@ public:
       return load8( buffer + ICMP_TYPE_OFFSET );
    }
    
+   void setType( uint8_t type )
+   {
+      store8( buffer + ICMP_TYPE_OFFSET, type );
+   }
+   
    uint16_t getChecksum() const
    {
       return loadBig16( buffer + ICMP_CHECKSUM_OFFSET );
+   }
+   
+   void setChecksum( uint16_t checksum )
+   {
+      return storeBig16( buffer + ICMP_CHECKSUM_OFFSET, checksum );
    }
 
    uint16_t computeChecksum() const
    {
       return IP::checksum( buffer, size, 1 );
+   }
+   
+   uint32_t getQuench()
+   {
+      return loadBig32( buffer + ICMP_QUENCH_OFFSET );
+   }
+   
+   void setQuench( uint32_t quench )
+   {
+      storeBig32( buffer + ICMP_QUENCH_OFFSET, quench );
    }
    
    bool isValid()
@@ -78,7 +99,7 @@ public:
       {
       }
 
-      virtual void processFrame( ICMPFrame * frame ) = 0;
+      virtual void processFrame( IP::IPv4Frame * ipframe, ICMPFrame * icmpframe ) = 0;
 };
 
 class ICMP_Handler : public IP::IPv4_Listener
@@ -109,7 +130,7 @@ public:
    
             for(; begin != end; ++begin)
             {
-               (*begin)->processFrame( &icmpframe );
+               (*begin)->processFrame( ipframe, &icmpframe );
             }
          }
 		}

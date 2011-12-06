@@ -2,7 +2,8 @@
 
 #pragma once
 
-static uint8_t const IP_UNCONFIGURED[4] = {0x00,0x00,0x00,0x00};
+static uint8_t const IPv4_UNCONFIGURED[4] = {0x00,0x00,0x00,0x00};
+static uint8_t const IPv4_BROADCAST[4] = {0xFF,0xFF,0xFF,0xFF};
 
 class IPAddress
 {
@@ -91,7 +92,7 @@ static uint8_t const IPv4_TTL_OFFSET = 8;
 static uint8_t const IPv4_PROTOCOL_OFFSET = 9;
 static uint8_t const IPv4_CHECKSUM_OFFSET = 10;
 static uint8_t const IPv4_SOURCE_OFFSET = 12;
-static uint8_t const IPv4_DESTINATION_OFFSET = 14;
+static uint8_t const IPv4_DESTINATION_OFFSET = 16;
 
    class IPv4Frame
    {
@@ -127,6 +128,36 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 14;
   	  {
       return load8( buffer + IPv4_PROTOCOL_OFFSET );
   	  }
+     
+     void setProtocol(uint8_t protocol ) const
+  	  {
+      store8( buffer + IPv4_PROTOCOL_OFFSET, protocol );
+  	  }
+     
+     void setTTL(uint8_t ttl ) const
+  	  {
+      store8( buffer + IPv4_TTL_OFFSET, ttl );
+  	  }
+     
+      IPAddress getSource()
+   	{
+   		return IPAddress( buffer + IPv4_SOURCE_OFFSET );
+   	}
+      
+      void setSource(IPAddress iaddr)
+      {
+         iaddr.store( buffer + IPv4_SOURCE_OFFSET );
+      }
+     
+      IPAddress getDestination()
+   	{
+   		return IPAddress( buffer + IPv4_DESTINATION_OFFSET );
+   	}
+      
+      void setDestination(IPAddress iaddr)
+      {
+         iaddr.store( buffer + IPv4_DESTINATION_OFFSET );
+      }
 
       uint16_t getChecksum() const
       {
@@ -161,6 +192,13 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 14;
       uint_fast16_t getSize() const
       {
          return size;
+      }
+      
+      void setHeaders()
+      {
+         storeBig16( buffer + 0, 0x4500 );
+         storeBig16( buffer + IPv4_TOTALLEN_OFFSET, size );
+         storeBig16( buffer + IPv4_FRAGMENTATION_OFFSET, 0 );
       }
       
       //We don't support setting options
@@ -204,8 +242,8 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 14;
          if( frame->getEtherType() == ETHERNET_TYPE_IPv4 )
          {
             IPv4Frame ipframe( frame->getPayload(), frame->getPayloadSize() );
-
-            if( ipframe.isValid() )
+            
+            if( ipframe.isValid() && ( (ipframe.getDestination() == IPv4_BROADCAST) || (ipframe.getDestination() == myIP) ) )
             {
                hlist::iterator begin = listeners.begin();
                hlist::iterator end   = listeners.end();

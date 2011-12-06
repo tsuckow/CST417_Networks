@@ -635,6 +635,11 @@
               <FileType>5</FileType>
               <FilePath>.\SROSpp\icmp.hpp</FilePath>
             </File>
+            <File>
+              <FileName>endian.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\endian.hpp</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -185,8 +185,9 @@ public:
 			ARPFrame message;
 			recieveQueue.recv( -1, &message );
          
-         if( !(message.psender == IP_UNCONFIGURED) )
+         if( !(message.psender == IPv4_UNCONFIGURED) )
          {
+            printf( "Adding to cache: %llu\n", srostime );
 			   cache.updateEntry( message.hsender, message.psender, srostime + CACHE_ENTRY_EXPIRATION );
          }
 			
@@ -195,6 +196,7 @@ public:
          {
             if( message.ptarget == myIP )
             {
+               printf( "Sending reply\n" );
                sendReply( message.hsender, message.psender );
             }
          }
