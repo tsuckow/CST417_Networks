@@ -4,7 +4,7 @@
 #pragma once
 
 #include "arp.hpp"
-#include "ip.hpp"
+#include "ipaddress.hpp"
 #include "mailbox.hpp"
 #include "arp_cache.hpp"
 
@@ -45,27 +45,34 @@ protected:
       size_t const packet_size = ARPFrame_Eth_IPv4::getSize() + EthernetFrame::getOverhead();
       uint8_t * packetBuffer = new uint8_t[ packet_size ];
       
+      if( packetBuffer != 0)
       {
-         EthernetFrame eframe( packetBuffer, packet_size );
-         ARPFrame_Eth_IPv4 arpframe( eframe.getPayload() );
+         {
+            EthernetFrame eframe( packetBuffer, packet_size );
+            ARPFrame_Eth_IPv4 arpframe( eframe.getPayload() );
+            
+            eframe.setDestination( etarget );
+            eframe.setSource( eth_handler->getAddress() );
+            eframe.setEtherType( ETHERNET_TYPE_ARP );
+            
+            arpframe.setHeaders();
+            
+            arpframe.setOPER( oper );
+            arpframe.setTargetEthernetAddress( etarget );
+            arpframe.setTargetIPAddress( itarget );
+            
+            arpframe.setSenderEthernetAddress( eth_handler->getAddress() );
+            arpframe.setSenderIPAddress( myIP );
+            
+            eth_handler->sendFrame( &eframe );
+         }
          
-         eframe.setDestination( etarget );
-         eframe.setSource( eth_handler->getAddress() );
-         eframe.setEtherType( ETHERNET_TYPE_ARP );
-         
-         arpframe.setHeaders();
-         
-         arpframe.setOPER( oper );
-         arpframe.setTargetEthernetAddress( etarget );
-         arpframe.setTargetIPAddress( itarget );
-         
-         arpframe.setSenderEthernetAddress( eth_handler->getAddress() );
-         arpframe.setSenderIPAddress( myIP );
-         
-         eth_handler->sendFrame( &eframe );
+         delete [] packetBuffer;
       }
-      
-      delete [] packetBuffer;
+      else
+      {
+         printf("Out of mem: sendARP\n");
+      }
    }  
        
    void sendRequest( IPAddress target )
@@ -187,7 +194,7 @@ public:
          
          if( !(message.psender == IPv4_UNCONFIGURED) )
          {
-            printf( "Adding to cache: %llu\n", srostime );
+            //printf( "Adding to cache: %llu\n", srostime );
 			   cache.updateEntry( message.hsender, message.psender, srostime + CACHE_ENTRY_EXPIRATION );
          }
 			
@@ -196,7 +203,7 @@ public:
          {
             if( message.ptarget == myIP )
             {
-               printf( "Sending reply\n" );
+               //printf( "Sending reply\n" );
                sendReply( message.hsender, message.psender );
             }
          }

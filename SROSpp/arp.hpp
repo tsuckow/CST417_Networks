@@ -3,7 +3,7 @@
 #pragma once
 
 #include "ethernet_handler.hpp"
-#include "ip.hpp"
+#include "ipaddress.hpp"
 #include "endian.hpp"
 
 static uint_fast8_t const ARP_HTYPE_OFFSET = 0;

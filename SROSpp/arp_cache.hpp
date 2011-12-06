@@ -206,7 +206,7 @@ public:
          if( entries[i].time != 0 )
          {
             int diff = (entries[i].time - now)/1000;
-			if( diff > 0 )
+			if( entries[i].time > now )
 			{
 	            printf("%.4d ", diff );
 	            entries[i].eaddr.print();

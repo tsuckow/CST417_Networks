@@ -38,8 +38,11 @@ UART1_Driver * const uart1 = new UART1_Driver();
 Ethernet_Handler eth_handler( eth0 );
 
 uint8_t const myipaddr[4] = {192,168,0,13};
+uint8_t const myipmask[4] = {255,255,255,0};
+uint8_t const myipgate[4] = {192,168,0,1};
 ARP_Handler arp_handler( &eth_handler, myipaddr );
-IP::IPv4_Handler ipv4_handler( &eth_handler, myipaddr );
+RoutingTable routes( myipaddr, myipmask, myipgate );
+IP::IPv4_Handler ipv4_handler( &eth_handler, myipaddr, &arp_handler, &routes );
 ICMP_Handler icmp_handler;
 ICMPEchoServer echoServer;
 
@@ -67,10 +70,10 @@ int main(void)
 
    //System threads
    threadfactory.spawnThread(200, 1,ethernetReceiver);
-   threadfactory.spawnThread(100, 10,ethernetSender);
+   threadfactory.spawnThread(200, 10,ethernetSender);
    threadfactory.spawnThread(400, 21,arpRequestThread);
    threadfactory.spawnThread(400, 20,arpRecieveThread);
-   threadfactory.spawnThread(400, 20,ICMPEchoServer::serverThread,&echoServer);
+   threadfactory.spawnThread(400, 20,ICMPEchoServer::serverThread,&echoServer,&ipv4_handler);
    threadfactory.spawnThread(1000, 100,userThread,uart1);
 
    eth_handler.addListener( &arp_handler );
@@ -94,7 +97,6 @@ void ethernetReceiver()
 	while(true)
 	{
 		eth0->recv_wait( -1 );//Wait forever
-		
 		while( eth0->isFrameAvailable() )
 		{
 			//This could be more OO so the end happens out of scope,

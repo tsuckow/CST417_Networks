@@ -73,6 +73,8 @@ public:
    void push_front( T const & item )
    {
       m_head = new Node( item, m_head );
+      
+      if(m_head == 0) printf("Out of mem: ll::push_front\n");
    }
    
    void push_back( T const & item )
@@ -84,6 +86,8 @@ public:
       }
       
       *current = new Node( item, 0 );
+      
+      if(*current == 0) printf("Out of mem: ll::push_back\n");
    }
    
    iterator begin()

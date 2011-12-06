@@ -2,51 +2,10 @@
 
 #pragma once
 
-static uint8_t const IPv4_UNCONFIGURED[4] = {0x00,0x00,0x00,0x00};
-static uint8_t const IPv4_BROADCAST[4] = {0xFF,0xFF,0xFF,0xFF};
-
-class IPAddress
-{
-protected:
-
-	static size_t const SIZE = 4;
-	uint8_t addr[SIZE];
-
-public:
-	IPAddress()
-	{
-	}
-
-	IPAddress( uint8_t const * addr_ )
-	{
-		memcpy( addr, addr_, SIZE );
-	}
-
-	IPAddress( IPAddress const & addr_ )
-	{
-		memcpy( addr, addr_.addr, SIZE );
-	}
-
-	bool operator==( IPAddress const & rhs ) const
-	{
-		return
-			addr[0] == rhs.addr[0] &&
-			addr[1] == rhs.addr[1] &&
-			addr[2] == rhs.addr[2] &&
-			addr[3] == rhs.addr[3]
-			;
-	}
-
-	void print()
-	{
-		printf("%d.%d.%d.%d",addr[0],addr[1],addr[2],addr[3]);
-	}
-
-   void store( uint8_t * buffer )
-   {
-      memcpy( buffer, addr, SIZE );
-   }
-};
+#include "mutex.hpp"
+#include "ipaddress.hpp"
+#include "arp_handler.hpp"
+#include "routingtable.hpp"
 
 namespace IP
 {
@@ -134,9 +93,14 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
       store8( buffer + IPv4_PROTOCOL_OFFSET, protocol );
   	  }
      
-     void setTTL(uint8_t ttl ) const
+     void setTTL(uint8_t ttl )
   	  {
       store8( buffer + IPv4_TTL_OFFSET, ttl );
+  	  }
+     
+     void setIdent(uint8_t id )
+  	  {
+      storeBig16( buffer + IPv4_IDENTIFICATION_OFFSET, id );
   	  }
      
       IPAddress getSource()
@@ -166,7 +130,12 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
 
       uint16_t computeChecksum() const
       {
-         return checksum( buffer, getHeaderLength(), 5 );
+         return checksum( buffer, getHeaderLength(), IPv4_CHECKSUM_OFFSET / 2 );
+      }
+      
+      void setChecksum( uint16_t checksum )
+      {
+         return storeBig16( buffer + IPv4_CHECKSUM_OFFSET, checksum );
       }
 
       bool isValid() const
@@ -223,13 +192,29 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
    protected:
       Ethernet_Handler * const eth_handler;
       IPAddress myIP;
+      ARP_Handler * arp_handler;
+      RoutingTable * routingtable;
+      
       typedef ll<IPv4_Listener *> hlist;
       hlist listeners;
+      
+      Mutex identity_mutex;
+      uint16_t identity;
+
+      uint16_t nextIdent()
+      {
+         identity_mutex.lock();
+         uint16_t tmp = ++identity;
+         identity_mutex.release();
+         return tmp;
+      }
 
    public:
-      IPv4_Handler( Ethernet_Handler * handler, IPAddress myIP )
+      IPv4_Handler( Ethernet_Handler * handler, IPAddress myIP, ARP_Handler * arp_handler, RoutingTable * table )
          : eth_handler( handler ),
-           myIP( myIP )
+           myIP( myIP ),
+           arp_handler( arp_handler ),
+           routingtable( table )
       {
       }
 
@@ -259,6 +244,24 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
       void addListener( IPv4_Listener * listener )
       {
          listeners.push_back( listener );
+      }
+      
+      void sendFrame( EthernetFrame * ethframe, IP::IPv4Frame * ipframe )
+      {
+         ipframe->setIdent( nextIdent() );
+         ipframe->setChecksum( ipframe->computeChecksum() );
+         
+         ethframe->setEtherType( ETHERNET_TYPE_IPv4 );    
+         
+         IPAddress hop = routingtable->nextHop( ipframe->getDestination() );
+         
+         EthernetAddress eaddress = arp_handler->request( hop );
+			if( !(eaddress == ETHERNET_UNCONFIGURED) )
+			{
+      			ethframe->setDestination( eaddress );
+               
+               eth_handler->sendFrame( ethframe );
+			}
       }
    };
 }

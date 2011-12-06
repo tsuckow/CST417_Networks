@@ -640,6 +640,11 @@
               <FileType>5</FileType>
               <FilePath>.\SROSpp\endian.hpp</FilePath>
             </File>
+            <File>
+              <FileName>mutex.hpp</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SROSpp\mutex.hpp</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

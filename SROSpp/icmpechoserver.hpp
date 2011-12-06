@@ -50,13 +50,17 @@ public:
             // :( Drop the reply, buffer is full
             if( !sent )
             {
-               delete buf;
+               delete [] buf;
             }
+         }
+         else
+         {
+            printf("Out of mem: Echo Server\n");
          }
       }
    }
    
-   void serverThread()
+   void serverThread( IP::IPv4_Handler * handler )
    {
       EchoReply reply;
       
@@ -64,14 +68,17 @@ public:
       {
          replies.recv( -1, &reply );
          
-         printf("Echo Reply\n");
+         EthernetFrame ethframe( reply.buffer, reply.size );
+         IP::IPv4Frame ipframe ( ethframe.getPayload(), ethframe.getPayloadSize() );
          
-         delete reply.buffer;
+         handler->sendFrame( &ethframe, &ipframe );
+         
+         delete [] reply.buffer;
       }
    }
    
-   static void serverThread( ICMPEchoServer * server )
+   static void serverThread( ICMPEchoServer * server, IP::IPv4_Handler * handler )
    {
-      server->serverThread();
+      server->serverThread( handler );
    }
 };
