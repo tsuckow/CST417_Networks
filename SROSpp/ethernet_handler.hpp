@@ -55,11 +55,10 @@ class Ethernet_Handler
 			SendQueueItem item;
 			item.frame = frame;
 			SendQueueItem * itemptr( &item );
-			printf(">");
+         
 			sendQueue.send( timeout, &itemptr );
-         printf("-");
+         
 			item.response.wait();
-         printf("<");
 		}
 		
 		void sender()
@@ -69,10 +68,8 @@ class Ethernet_Handler
 			while(true)
 			{
 				sendQueue.recv( -1, &item );
-				printf("{");
 				//Process it
 				driver->sendFrame( item->frame->getFrame(), item->frame->getSize() );
-				printf("}");
 				item->response.signal();
 			}
 		}

@@ -102,7 +102,7 @@ protected:
             an.time = t + REQUEST_EXPIRATION;
             if( !cache.notify( an ) )
             {
-			   printf("Sending ARP Request Again...\n");
+			   //printf("Sending ARP Request Again...\n");
                sendRequest( *an.request );
             }
          }
@@ -178,7 +178,7 @@ public:
             
             if( !cache.notify( notification ) )
             {
-			      printf("Sending ARP Request...\n");
+			      //printf("Sending ARP Request...\n");
                sendRequest( *message.request );
             }
          }
