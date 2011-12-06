@@ -328,7 +328,8 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 				if( MAC_INTSTATUS & INT_TX_DONE )
 				{
 					MAC_INTCLEAR = INT_TX_DONE;
-					printf( "ETH: TX DONE\n" );
+               sem_tx.signal();
+					//printf( "ETH: TX DONE\n" );
 				}
 				
 				if( MAC_INTSTATUS & INT_SOFT_INT )
@@ -401,7 +402,7 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 			{
 				unsigned int idx;
 				idx = MAC_TXPRODUCEINDEX;
-		  		TX_DESC_CTRL(idx) = size | TCTRL_LAST;
+		  		TX_DESC_CTRL(idx) = size | TCTRL_LAST | TCTRL_INT;
 			
 				memcpy((void*)TX_DESC_PACKET(idx), frame, size);
 				
