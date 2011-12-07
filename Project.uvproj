@@ -415,6 +415,11 @@
               <FileType>1</FileType>
               <FilePath>.\memmutex.c</FilePath>
             </File>
+            <File>
+              <FileName>exception.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\exception.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
