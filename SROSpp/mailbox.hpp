@@ -19,6 +19,11 @@ public:
                        sizeof(T) * size, 
                        sizeof(T) );
 	}
+   
+   ~Mailbox()
+   {
+      delete [] buffer;
+   }
 
 	//Send a semaphore in T to unblock thread when buffer is safe to delete.
 
