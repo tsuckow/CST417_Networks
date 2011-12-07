@@ -10,6 +10,8 @@
 
 static uint8_t const ICMP_TYPE_ECHOREQUEST = 0x08;
 static uint8_t const ICMP_TYPE_ECHOREPLY = 0x00;
+static uint8_t const ICMP_TYPE_UNREACHABLE = 0x03;
+static uint8_t const ICMP_TYPE_TTLEXCEEDED = 0x0B;
 static uint8_t const ICMP_HEADER_SIZE = 8;
 static uint8_t const ICMP_TYPE_OFFSET= 0;
 static uint8_t const ICMP_CODE_OFFSET = 1;
@@ -34,6 +36,11 @@ public:
    void setType( uint8_t type )
    {
       store8( buffer + ICMP_TYPE_OFFSET, type );
+   }
+   
+   uint8_t getCode()
+   {
+      return load8( buffer + ICMP_CODE_OFFSET );
    }
    
    uint16_t getChecksum() const
@@ -170,8 +177,10 @@ public:
             listeners.erase( begin );
             break;
          }
+         
+         ++begin;
       }
-            
+      
       listener_lock.release();
    }
 };

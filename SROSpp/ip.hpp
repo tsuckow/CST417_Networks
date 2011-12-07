@@ -246,7 +246,7 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
          listeners.push_back( listener );
       }
       
-      void sendFrame( EthernetFrame * ethframe, IP::IPv4Frame * ipframe )
+      bool sendFrame( EthernetFrame * ethframe, IP::IPv4Frame * ipframe )
       {
          ipframe->setIdent( nextIdent() );
          ipframe->setSource( myIP );
@@ -262,7 +262,11 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
       			ethframe->setDestination( eaddress );
                
                eth_handler->sendFrame( ethframe );
+               
+               return true;
 			}
+         
+         return false;
       }
    };
 }

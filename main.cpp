@@ -37,6 +37,10 @@ Ethernet_Driver * const eth0 = new Ethernet_Driver_LPC23xx(mymacaddr);
 UART1_Driver * const uart1 = new UART1_Driver();
 Ethernet_Handler eth_handler( eth0 );
 
+//uint8_t const myipaddr[4] = {192,168,13,13};
+//uint8_t const myipmask[4] = {255,255,255,0};
+//uint8_t const myipgate[4] = {192,168,13,1};
+
 uint8_t const myipaddr[4] = {192,168,0,13};
 uint8_t const myipmask[4] = {255,255,255,0};
 uint8_t const myipgate[4] = {192,168,0,1};
@@ -214,7 +218,7 @@ IPAddress readIP( UART1_Driver * console )
 }
 
 
-class EchoReplyListener : ICMP_Listener
+class EchoReplyListener : public ICMP_Listener
 {
 Mailbox<uint8_t> answer;
 uint32_t myquench;
@@ -228,7 +232,33 @@ public:
    {
       if( icmpframe->getType() == ICMP_TYPE_ECHOREPLY )
       {         
-         
+         if( icmpframe->getQuench() == myquench )
+         {
+            uint8_t type = ICMP_TYPE_ECHOREPLY;
+            answer.send( 0, &type );
+            return true;
+         }
+      }
+      else if( icmpframe->getType() == ICMP_TYPE_UNREACHABLE || icmpframe->getType() == ICMP_TYPE_TTLEXCEEDED )
+      {
+         IP::IPv4Frame inneripframe( icmpframe->getPayload(), icmpframe->getPayloadSize() );
+         if( inneripframe.getProtocol() == IP::IPv4_PROTO_ICMP )
+         {
+            ICMPFrame innericmpframe( inneripframe.getPayload(), inneripframe.getPayloadSize() );
+            if( innericmpframe.getType() == ICMP_TYPE_ECHOREQUEST )
+            {         
+               if( innericmpframe.getQuench() == myquench )
+               {
+                   uint8_t code = 0xFE;
+                   if( icmpframe->getType() == ICMP_TYPE_UNREACHABLE )
+                   {
+                        code = icmpframe->getCode() + 1;
+                   }
+                   answer.send( 0, &code );
+                   return true;
+               }
+            }
+         }
       }
       
       return false;
@@ -236,7 +266,7 @@ public:
    
    virtual uint8_t getResponse( int32_t timeout )
    {  
-      uint8_t resp;
+      uint8_t resp = 0xFF;
       answer.recv( timeout, &resp );
       return resp;
    }
@@ -274,14 +304,42 @@ void echoClient( UART1_Driver * console )
       ripframe.setProtocol( IP::IPv4_PROTO_ICMP );
       ripframe.setTTL( ttl );
       
-      ipv4_handler.sendFrame( &rethframe, &ripframe );
+      EchoReplyListener replyListener( quench );
+      icmp_handler.addListener( &replyListener );
+      
+      bool sent = ipv4_handler.sendFrame( &rethframe, &ripframe );
       
       delete [] buf;
       
+      if( sent )
       {
          //Response
+         uint8_t val = replyListener.getResponse( 2000 );
          
+         
+         if( val == 0x00 )
+         {
+            printf("Pong!\n");
+         }
+         else if( val == 0xFF )
+         {
+            printf("Ping Timeout.\n");
+         }
+         else if( val == 0xFE )
+         {
+            printf("TTL Exceeded.\n");
+         }
+         else
+         {
+            printf("Host Unreachable - Code: %u\n", val-1);
+         }
       }
+      else
+      {
+         printf("No route to host\n");
+      }
+      
+      icmp_handler.remListener( &replyListener );
    }
    else
    {
