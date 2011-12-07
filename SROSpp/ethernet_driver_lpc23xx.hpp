@@ -322,7 +322,6 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 				{
 					MAC_INTCLEAR = INT_TX_FIN;
 					//printf( "ETH: TX FIN\n" );
-					sem_tx.signal();
 				}
 				
 				if( MAC_INTSTATUS & INT_TX_DONE )
