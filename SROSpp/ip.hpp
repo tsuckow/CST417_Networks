@@ -87,6 +87,11 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
   	  {
       return load8( buffer + IPv4_PROTOCOL_OFFSET );
   	  }
+
+	  uint16_t getFragment() const
+	  {
+	  	return loadBig16( buffer + IPv4_FRAGMENTATION_OFFSET );
+	  }
      
      void setProtocol(uint8_t protocol ) const
   	  {
@@ -140,7 +145,7 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
 
       bool isValid() const
       {
-         return (getChecksum() == computeChecksum()) && ( getHeaderLength() >= (5*4) ) && ( getTotalLength() <= size );
+         return (getChecksum() == computeChecksum()) && ( getHeaderLength() >= (5*4) ) && ( getTotalLength() <= size ) && (getFragment() == 0);
       }
 
       uint8_t * getPayload()
