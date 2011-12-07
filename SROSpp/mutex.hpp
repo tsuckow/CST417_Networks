@@ -22,11 +22,15 @@ public:
 	*/	
 	bool lock( int32_t timeout = -1 )
 	{
-		return mutexObjectLock( &box, timeout );
+      if( isSROSRunning() )
+		   return mutexObjectLock( &box, timeout );
+      else
+         return true; //Only one "thread" (main)
 	}
 
 	void release()
 	{
-		return mutexObjectRelease( &box );
+      if( isSROSRunning() )
+		   return mutexObjectRelease( &box );
 	}
 };

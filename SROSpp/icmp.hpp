@@ -99,13 +99,15 @@ public:
       {
       }
 
-      virtual void processFrame( IP::IPv4Frame * ipframe, ICMPFrame * icmpframe ) = 0;
+      virtual bool processFrame( IP::IPv4Frame * ipframe, ICMPFrame * icmpframe ) = 0;
 };
 
 class ICMP_Handler : public IP::IPv4_Listener
 {
       typedef ll<ICMP_Listener *> hlist;
       hlist listeners;
+      
+      Mutex listener_lock;
 
 public:
 	ICMP_Handler()
@@ -125,19 +127,51 @@ public:
          
          if( icmpframe.isValid() )
          {
+            listener_lock.lock();
    		   hlist::iterator begin = listeners.begin();
             hlist::iterator end   = listeners.end();
    
-            for(; begin != end; ++begin)
+            while( begin != end )
             {
-               (*begin)->processFrame( ipframe, &icmpframe );
+                bool remove = (*begin)->processFrame( ipframe, &icmpframe );
+                
+                if( remove )
+                {
+                  begin = listeners.erase( begin );
+                }
+                else
+                {
+                  ++begin;
+                }
             }
+            listener_lock.release();
          }
 		}
 	}
    
    void addListener( ICMP_Listener * listener )
    {
-      listeners.push_back( listener );
+      listener_lock.lock();
+      listeners.push_front( listener );
+      listener_lock.release();
+   }
+   
+   void remListener( ICMP_Listener * listener )
+   {
+      listener_lock.lock();
+      
+      hlist::iterator begin = listeners.begin();
+      hlist::iterator end   = listeners.end();
+   
+      while( begin != end )
+      {
+         if( (*begin) == listener )
+         {
+            listeners.erase( begin );
+            break;
+         }
+      }
+            
+      listener_lock.release();
    }
 };

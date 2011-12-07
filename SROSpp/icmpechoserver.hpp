@@ -11,15 +11,17 @@ class ICMPEchoServer : public ICMP_Listener
    };
    
    Mailbox<EchoReply> replies;
+   
+   bool enabled;
 
 public:
-	ICMPEchoServer() : replies( 3 )
+	ICMPEchoServer() : replies( 3 ), enabled( true )
 	{
 	}
 
-	virtual void processFrame( IP::IPv4Frame * ipframe, ICMPFrame * icmpframe )
+	virtual bool processFrame( IP::IPv4Frame * ipframe, ICMPFrame * icmpframe )
    {
-      if( icmpframe->getType() == ICMP_TYPE_ECHOREQUEST )
+      if( icmpframe->getType() == ICMP_TYPE_ECHOREQUEST && enabled )
       {         
          size_t packetsize = icmpframe->getSize() + IP::IPv4Frame::getOverhead() + EthernetFrame::getOverhead();
          uint8_t * buf = new uint8_t[ packetsize ];
@@ -58,6 +60,8 @@ public:
             printf("Out of mem: Echo Server\n");
          }
       }
+      
+      return false;
    }
    
    void serverThread( IP::IPv4_Handler * handler )
@@ -80,5 +84,15 @@ public:
    static void serverThread( ICMPEchoServer * server, IP::IPv4_Handler * handler )
    {
       server->serverThread( handler );
+   }
+   
+   bool isEnabled()
+   {
+      return enabled;
+   }
+   
+   void setEnabled( bool en )
+   {
+      enabled = en;
    }
 };

@@ -249,6 +249,7 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
       void sendFrame( EthernetFrame * ethframe, IP::IPv4Frame * ipframe )
       {
          ipframe->setIdent( nextIdent() );
+         ipframe->setSource( myIP );
          ipframe->setChecksum( ipframe->computeChecksum() );
          
          ethframe->setEtherType( ETHERNET_TYPE_IPv4 );    
