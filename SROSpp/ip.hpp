@@ -145,7 +145,7 @@ static uint8_t const IPv4_DESTINATION_OFFSET = 16;
 
       bool isValid() const
       {
-         return (getChecksum() == computeChecksum()) && ( getHeaderLength() >= (5*4) ) && ( getTotalLength() <= size ) && (getFragment() == 0);
+         return (getChecksum() == computeChecksum()) && ( getHeaderLength() >= (5*4) ) && ( getTotalLength() <= size ) && ( (getFragment() & 0xBFFF)== 0);
       }
 
       uint8_t * getPayload()
