@@ -395,11 +395,11 @@ class Ethernet_Driver_LPC23xx : public Ethernet_Driver
 			{
 				sem_tx.wait();
 			}
-			
+         
 			{
 				unsigned int idx;
 				idx = MAC_TXPRODUCEINDEX;
-		  		TX_DESC_CTRL(idx) = size | TCTRL_LAST | TCTRL_INT;
+		  		TX_DESC_CTRL(idx) = (size-1/*-1 Encoded*/-4/*CRC*/) | TCTRL_CRC | TCTRL_LAST | TCTRL_INT;
 			
 				memcpy((void*)TX_DESC_PACKET(idx), frame, size);
 				
