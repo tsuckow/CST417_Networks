@@ -9,7 +9,7 @@
 ;/* end user licence from KEIL for a compatible version of KEIL software      */
 ;/* development tools. Nothing else gives you the right to use this software. */
 ;/*****************************************************************************/
-
+	 PRESERVE8 {TRUE}
 
 ;/*
 ; *  The LPC2300.S code is executed after CPU Reset. This file may be 
@@ -352,12 +352,12 @@ DAbt_Addr       DCD     DAbt_Handler
 IRQ_Addr        DCD     IRQ_Handler
 FIQ_Addr        DCD     FIQ_Handler
 
-Undef_Handler   B       Undef_Handler
-SWI_Handler     B       SWI_Handler
-PAbt_Handler    B       PAbt_Handler
-DAbt_Handler    B       DAbt_Handler
-IRQ_Handler     B       IRQ_Handler
-FIQ_Handler     B       FIQ_Handler
+	IMPORT Undef_Handler
+	IMPORT SWI_Handler
+	IMPORT PAbt_Handler
+	IMPORT DAbt_Handler
+	IMPORT IRQ_Handler
+	IMPORT FIQ_Handler 
 
 
 ; Reset Handler
