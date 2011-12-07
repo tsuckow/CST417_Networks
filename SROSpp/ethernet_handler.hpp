@@ -47,11 +47,13 @@ class Ethernet_Handler
 			for(; begin != end; ++begin)
 			{
 				(*begin)->processFrame( frame );
-			}		
+			}
 		}
 		
 		void sendFrame( EthernetFrame * frame, int32_t timeout = -1 )
 		{
+         frame->setSource( driver->getAddress() );
+      
 			SendQueueItem item;
 			item.frame = frame;
 			SendQueueItem * itemptr( &item );
